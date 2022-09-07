@@ -3,11 +3,12 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
 }
-
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
 
 enum DeckName {
@@ -81,7 +82,8 @@ model Game {
 
 model Review {
   id          String   @id @default(uuid())
-  description String
+  gradeNumber Int
+  description String   @db.VarChar(4000)
   timestamps  DateTime @default(now())
   game        Game     @relation(fields: [gameId], references: [id])
   gameId      String
