@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum DeckName {
+  MARSEILLE
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id              String     @id @default(cuid())
+  createdAt       DateTime   @default(now())
+  email           String     @unique
+  password        String
+  name            String?
+  birthday        DateTime?
+  location        String?
+  role            Role       @default(USER)
+  AnalysisCreated Analysis[]
+  Game            Game[]
+}
+
+model CombinationType {
+  id          Int           @id @default(autoincrement())
+  description String
+  deckName    DeckName      @default(MARSEILLE)
+  Combination Combination[]
+}
+
+model Combination {
+  id                String            @id @default(uuid())
+  name              String            @unique
+  combinationType   CombinationType   @relation(fields: [combinationTypeId], references: [id])
+  combinationTypeId Int
+  CombinationInfo   CombinationInfo[]
+}
+
+model CombinationInfo {
+  id               String      @id @default(uuid())
+  cardSequenceEnum String      @unique
+  combination      Combination @relation(fields: [combinationId], references: [id])
+  combinationId    String
+  Analysis         Analysis?
+  Game             Game[]
+}
+
+model Analysis {
+  id                String          @id @default(uuid())
+  author            User            @relation(fields: [authorId], references: [id])
+  authorId          String
+  createdAt         DateTime        @default(now())
+  combinationInfo   CombinationInfo @relation(fields: [combinationInfoId], references: [id])
+  combinationInfoId String          @unique
+  textOne           String          @db.VarChar(21844)
+  textTwo           String          @db.VarChar(21844)
+  textThree         String          @db.VarChar(21844)
+  textFour          String          @db.VarChar(21844)
+}
+
+model Game {
+  id                String          @id @default(cuid())
+  userPlayer        User            @relation(fields: [userPlayerId], references: [id])
+  userPlayerId      String
+  timestamps        DateTime        @default(now())
+  combinationInfo   CombinationInfo @relation(fields: [combinationInfoId], references: [id])
+  combinationInfoId String
+  Review            Review[]
+}
+
+model Review {
+  id          String   @id @default(uuid())
+  description String
+  timestamps  DateTime @default(now())
+  game        Game     @relation(fields: [gameId], references: [id])
+  gameId      String
+}
