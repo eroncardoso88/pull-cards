@@ -2,12 +2,14 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["referentialIntegrity"]
 }
+
 datasource db {
-  provider = "mysql"
-  url = env("DATABASE_URL")
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  shadowDatabaseUrl    = env("LOCAL_DEV")
   referentialIntegrity = "prisma"
 }
 
@@ -31,6 +33,8 @@ model User {
   role            Role       @default(USER)
   AnalysisCreated Analysis[]
   Game            Game[]
+
+  @@index([email])
 }
 
 model CombinationType {
@@ -40,12 +44,21 @@ model CombinationType {
   Combination Combination[]
 }
 
+model CombinationSubject {
+  id          Int           @id @default(autoincrement())
+  description String
+  deckName    DeckName      @default(MARSEILLE)
+  Combination Combination[]
+}
+
 model Combination {
-  id                String            @id @default(uuid())
-  name              String            @unique
-  combinationType   CombinationType   @relation(fields: [combinationTypeId], references: [id])
-  combinationTypeId Int
-  CombinationInfo   CombinationInfo[]
+  id                   String             @id @default(uuid())
+  name                 String             @unique
+  combinationType      CombinationType    @relation(fields: [combinationTypeId], references: [id])
+  combinationTypeId    Int
+  combinationSubject   CombinationSubject @relation(fields: [combinationSubjectId], references: [id])
+  combinationSubjectId Int
+  CombinationInfo      CombinationInfo[]
 }
 
 model CombinationInfo {
@@ -64,10 +77,10 @@ model Analysis {
   createdAt         DateTime        @default(now())
   combinationInfo   CombinationInfo @relation(fields: [combinationInfoId], references: [id])
   combinationInfoId String          @unique
-  textOne           String          @db.VarChar(21844)
-  textTwo           String          @db.VarChar(21844)
-  textThree         String          @db.VarChar(21844)
-  textFour          String          @db.VarChar(21844)
+  textOne           String          @db.Text
+  textTwo           String          @db.Text
+  textThree         String          @db.Text
+  textFour          String          @db.Text
 }
 
 model Game {
