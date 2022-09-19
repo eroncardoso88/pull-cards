@@ -1,4 +1,5 @@
 import * as trpc from '@trpc/server';
+import { userRouter } from './User';
 
 import { z } from 'zod';
 
@@ -15,7 +16,8 @@ export const appRouter = trpc
         greeting: `hello ${input?.text ?? 'world'}`,
       };
     },
-  });
+  })
+  .merge('users.', userRouter)
 
 // export type definition of API
 export type AppRouter = typeof appRouter;

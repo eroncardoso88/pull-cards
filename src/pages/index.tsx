@@ -1,11 +1,39 @@
 import { trpc } from '@/utils/trpc'
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import { z } from "zod";
 
-const Home: NextPage = () => {
-  const { data, isLoading } = trpc.useQuery(["hello", { text: 'teste' }])
-  if (isLoading) return <div>Loading...</div>
-  if (data) return <div>{data.greeting}</div>
+export const createUserSchema = z.object({
+  createdAt: z.string(),
+  email: z.string().email(),
+  name: z.string(),
+  birthday: z.string(),
+  location: z.string(),
+  role: z.string()
+})
+
+export type CreateUserInput = z.TypeOf<typeof createUserSchema>
+
+const Home: NextPage = (props) => {
+  const { data, isLoading } = trpc.useQuery(["hello", { text: 'pinto' }])
+  const { data: listUserData, isLoading: isLoadingListUsers } = trpc.useQuery(["users.list-users"])
+  
+  const { mutate, isSuccess, error } = trpc.useMutation(["users.create-user"], {
+    onSuccess: (success) => {
+      console.log('success ', success)
+    }
+  })
+
+  const clickSubmit = () => {
+
+  }
+
+  const clickGetAll = () => {
+    console.log(data)
+    console.log({listUserData})
+  }
+
+
   return (
     <div className="h-screen w-screen flex flex-col">
       <Head>
@@ -15,6 +43,14 @@ const Home: NextPage = () => {
       </Head>
       <main className="text-7xl">
         vazio
+        (isLoading) && <div>Loading...</div>
+        (data) && <div>{data?.greeting}</div>
+
+        <div>
+          <button onClick={() => clickGetAll()}> 
+            Get All
+          </button>
+        </div>
       </main>
 
     </div>
