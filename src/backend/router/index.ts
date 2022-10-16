@@ -1,5 +1,6 @@
 import * as trpc from '@trpc/server';
 import { userRouter } from './User';
+import { combinationSubjectRouter } from './CombinationSubject';
 
 import { z } from 'zod';
 
@@ -18,6 +19,7 @@ export const appRouter = trpc
     },
   })
   .merge('users.', userRouter)
+  .merge('combination-subject.', combinationSubjectRouter)
 
 // export type definition of API
 export type AppRouter = typeof appRouter;
