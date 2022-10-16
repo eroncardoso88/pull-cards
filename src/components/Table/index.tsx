@@ -79,39 +79,6 @@ const generateHeadCells = (columns: Object): HeadCell[] => {
   })
 }
 
-const headCells: readonly HeadCell[] = [
-  {
-    id: 'name',
-    numeric: false,
-    disablePadding: true,
-    label: 'Dessert (100g serving)',
-  },
-  {
-    id: 'calories',
-    numeric: true,
-    disablePadding: false,
-    label: 'Calories',
-  },
-  {
-    id: 'fat',
-    numeric: true,
-    disablePadding: false,
-    label: 'Fat (g)',
-  },
-  {
-    id: 'carbs',
-    numeric: true,
-    disablePadding: false,
-    label: 'Carbs (g)',
-  },
-  {
-    id: 'protein',
-    numeric: true,
-    disablePadding: false,
-    label: 'Protein (g)',
-  },
-];
-
 interface EnhancedTableHeadProps {
   numSelected: number;
   onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
@@ -140,7 +107,7 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
             inputProps={{
-              'aria-label': 'select all desserts',
+              'aria-label': 'select all data',
             }}
           />
         </TableCell>
@@ -196,7 +163,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
           variant="subtitle1"
           component="div"
         >
-          {numSelected} selected
+          {numSelected} selecionados
         </Typography>
       ) : (
         <Typography
@@ -209,14 +176,14 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
         </Typography>
       )}
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
+        <Tooltip title="Delete múltiplo desativado.">
+          <IconButton sx={{opacity: 0.5, cursor: 'default'}}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
+        <Tooltip title="Filtragem de dados desativada.">
+          <IconButton sx={{opacity: 0.5, cursor: 'default'}}>
             <FilterListIcon />
           </IconButton>
         </Tooltip>
