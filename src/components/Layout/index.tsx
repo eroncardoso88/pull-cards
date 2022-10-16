@@ -20,6 +20,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import { applicationRoutes } from "@/apllicationRoutes";
 import { Tooltip } from "@mui/material";
+import Link from "next/link";
 const drawerWidth = 240;
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -48,7 +49,6 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
@@ -184,39 +184,41 @@ export const Layout: React.FunctionComponent = ({ children }) => {
                 disablePadding
                 sx={{ display: "block" }}
               >
-                <Tooltip arrow title={route.description} placement="right-end">
-                  <ListItemButton
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? "initial" : "center",
-                      px: 2.5,
-                    }}
-                  >
-                    <ListItemIcon
+                <Link href={route.route}>
+                  <Tooltip arrow title={route.description} placement="right-end">
+                    <ListItemButton
                       sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : "auto",
-                        justifyContent: "center",
+                        minHeight: 48,
+                        justifyContent: open ? "initial" : "center",
+                        px: 2.5,
                       }}
                     >
-                      {route.icon === "HomeIcon" && <MUIcon.Home />}
-                      {route.icon === "StyleIcon" && <MUIcon.Style />}
-                      {route.icon === "AltRouteIcon" && <MUIcon.AltRoute />}
-                      {route.icon === "TitleIcon" && <MUIcon.Title />}
-                      {route.icon === "CasinoIcon" && <MUIcon.Casino />}
-                      {route.icon === "PsychologyIcon" && <MUIcon.Psychology />}
-                      {route.icon === "VideogameAssetIcon" && (
-                        <MUIcon.VideogameAsset />
-                      )}
-                      {route.icon === "RateReviewIcon" && <MUIcon.RateReview />}
-                      {route.icon === "PeopleAltIcon" && <MUIcon.PeopleAlt />}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={route.label}
-                      sx={{ opacity: open ? 1 : 0 }}
-                    />
-                  </ListItemButton>
-                </Tooltip>
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: open ? 3 : "auto",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {route.icon === "HomeIcon" && <MUIcon.Home />}
+                        {route.icon === "StyleIcon" && <MUIcon.Style />}
+                        {route.icon === "AltRouteIcon" && <MUIcon.AltRoute />}
+                        {route.icon === "TitleIcon" && <MUIcon.Title />}
+                        {route.icon === "CasinoIcon" && <MUIcon.Casino />}
+                        {route.icon === "PsychologyIcon" && <MUIcon.Psychology />}
+                        {route.icon === "VideogameAssetIcon" && (
+                          <MUIcon.VideogameAsset />
+                        )}
+                        {route.icon === "RateReviewIcon" && <MUIcon.RateReview />}
+                        {route.icon === "PeopleAltIcon" && <MUIcon.PeopleAlt />}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={route.label}
+                        sx={{ opacity: open ? 1 : 0 }}
+                      />
+                    </ListItemButton>
+                  </Tooltip>
+                </Link>
               </ListItem>
             );
           })}
@@ -230,7 +232,7 @@ export const Layout: React.FunctionComponent = ({ children }) => {
           py: 0.75,
           [theme.breakpoints.up("sm")]: {
             px: 2,
-            py: 1,
+            py: 2,
           },
         }}
       >

@@ -9,6 +9,7 @@ import Head from 'next/head';
 import React from 'react';
 import { Layout } from '@/components/Layout';
 import { red } from '@mui/material/colors';
+import { TableDensityProvider } from '@/contexts/TableDensity';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -30,16 +31,44 @@ function MyApp({ Component, pageProps, emotionCache = clientSideEmotionCache }: 
     responsiveFontSizes(createTheme({
         palette: {
           mode,
-          primary: {
-            main: '#ff4400',
-          },
-          secondary: {
-            main: '#19857b',
-          },
-          error: {
-            main: red.A400,
-          },
-        },
+          ...(mode === "light"
+          ? // light 
+          {
+            primary: {
+              main: '#ff4400',
+            },
+            secondary: {
+              main: '#19857b',
+            },
+            error: {
+              main: red.A400,
+            },
+          }
+          : //dark
+          {
+            primary: {
+              main: '#ff4400',
+            },
+            secondary: {
+              main: '#19857b',
+            },
+            error: {
+              main: red.A400,
+            },
+          }
+        )},
+        // components: {
+        //   MuiButton: {
+        //     variants: [
+        //       {
+        //         props: { variant: 'contained' },
+        //         style: {
+        //           background: #ff4400,
+        //         }
+        //       }
+        //     ],
+        //   }
+        // }
       })),
     [mode],
   );
@@ -50,13 +79,15 @@ function MyApp({ Component, pageProps, emotionCache = clientSideEmotionCache }: 
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <CssBaseline />
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </ThemeProvider>
+        <ThemeProvider theme={theme}>
+          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+          <CssBaseline />
+          <TableDensityProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </TableDensityProvider>
+        </ThemeProvider>
       </ColorModeContext.Provider>
     </CacheProvider>  
   )

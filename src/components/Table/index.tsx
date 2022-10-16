@@ -21,6 +21,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { translates } from '@/utils/translates';
+import { Button } from '@mui/material';
+import { useTableDensityContext } from '@/contexts/TableDensity';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -69,7 +71,6 @@ interface HeadCell {
 
 const generateHeadCells = (columns: Object): HeadCell[] => {
   return Object.keys(columns).map(column => {
-    console.log({column})
     return {
       id: columns[column],
       numeric: !isNaN(parseFloat(columns[column])),
@@ -195,15 +196,17 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 interface EnhancedTableProps {
   columns: []
   data: []
+  actionCreate: () => void
+  actionChangeDense: () => void
 }
 
-export default function EnhancedTable({columns = [], data = [], title}: EnhancedTableProps) {
+export default function EnhancedTable({columns = [], data = [], title, actionCreate, actionChangeDense}: EnhancedTableProps) {
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState(columns[0]);
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const {dense, toggleDensity} = useTableDensityContext()
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -252,8 +255,8 @@ export default function EnhancedTable({columns = [], data = [], title}: Enhanced
     setPage(0);
   };
 
-  const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDense(event.target.checked);
+  const handleChangeDense = () => {
+    toggleDensity();
   };
 
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
@@ -345,10 +348,25 @@ export default function EnhancedTable({columns = [], data = [], title}: Enhanced
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Adensar registros"
-      />
+      <Box 
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "flex-row",
+          alignItems: "center",
+          justifyContent: "space-between"
+        }}
+      >
+        <FormControlLabel
+          control={<Switch checked={dense} onChange={() => handleChangeDense()} />}
+          label="Adensar registros"
+        />
+        <Button onClick={() => actionCreate()} variant="contained" color="primary" type="button">
+          <Typography variant="button">
+            Criar
+          </Typography>
+        </Button>
+      </Box>
     </Box>
   );
 }

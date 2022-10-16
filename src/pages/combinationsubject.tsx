@@ -3,7 +3,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import { z } from "zod";
 import EnhancedTable from '@/components/Table';
-
+import { Box, Button, Typography } from '@mui/material';
 export type CreateUserInput = z.TypeOf<typeof createUserSchema>
 
 const CombinationSubject: NextPage = (props) => {
@@ -23,12 +23,13 @@ const CombinationSubject: NextPage = (props) => {
     console.log({dataCombinationSubject})
   }
 
+  const clickCreate = () => {
+    console.log('clickCreate!')
+  }
+
 
   return (
-    <div className="flex flex-col">
-      <button onClick={() => clickGetAll()}>
-        Load Combination Subject
-      </button>
+    <Box>
         {
           dataCombinationSubject && 
           dataCombinationSubject.length > 0 && (
@@ -37,10 +38,16 @@ const CombinationSubject: NextPage = (props) => {
                 columns={Object.keys(dataCombinationSubject[0])}
                 data={dataCombinationSubject}
                 title={"Assuntos dos jogos"}
+                actionCreate={() => clickCreate()}
               />
             </>
         )}
-    </div>
+        <Button onClick={() => clickGetAll()} variant="contained" color="primary" type="button">
+          <Typography variant="button">
+            Log Data
+          </Typography>
+        </Button>
+    </Box>
   )
 }
 
