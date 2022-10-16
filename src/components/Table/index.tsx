@@ -25,12 +25,16 @@ import { Button } from '@mui/material';
 import { useTableDensityContext } from '@/contexts/TableDensity';
 import { Create } from '@mui/icons-material';
 import { Visibility } from '@mui/icons-material';
+
+export interface BaseRecord {
+  id: string;
+ }
 interface IActions {
   edit?: {
-    callback: (id: string | number) => void
+    callback: (row: any) => void
   },
   view?: {
-    callback: (id: string | number) => void
+    callback: (row: any) => void
   },
   delete?: {
     callback: (id: string | number) => void
@@ -87,7 +91,6 @@ interface HeadCell {
 
 const generateHeadCells = (columns: Object, actions: IActions): HeadCell[] => {
   const headCells = Object.keys(columns).map(column => {
-    console.log('column', columns[column])
     return {
       id: columns[column],
       numeric: !isNaN(parseFloat(columns[column])),
@@ -223,14 +226,15 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 
 interface IActionButtons {
   actions: IActions
+  row: any
 }
 
-const ActionButtons:React.FunctionComponent<IActionButtons> = ({actions}) => {
+const ActionButtons:React.FunctionComponent<IActionButtons> = ({actions, row}) => {
   return (
     <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', position: 'relative', left: '10px'}}>
-      {actions.view && <IconButton color="inherit" sx={{padding: '0 5px', width: '27.5px'}}><Visibility width={10}/></IconButton>}
-      {actions.edit && <IconButton color="inherit" sx={{padding: '0 5px', width: '27.5px'}}><Create /></IconButton>}
-      {actions.delete && <IconButton color="inherit" sx={{padding: '0 5px', width: '27.5px'}}><DeleteIcon /></IconButton>}
+      {actions.view && <IconButton onClick={() => actions.view?.callback(row)} color="inherit" sx={{padding: '0 5px', width: '27.5px'}}><Visibility width={10}/></IconButton>}
+      {actions.edit && <IconButton onClick={() => actions.edit?.callback(row)} color="inherit" sx={{padding: '0 5px', width: '27.5px'}}><Create /></IconButton>}
+      {actions.delete && <IconButton onClick={() => actions.delete?.callback(row)} color="inherit" sx={{padding: '0 5px', width: '27.5px'}}><DeleteIcon /></IconButton>}
     </Box>
   )
 }
@@ -344,14 +348,13 @@ export default function EnhancedTable({columns = [], data = [], title, actions}:
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.id)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
                       key={row.id}
                       selected={isItemSelected}
                     >
-                      <TableCell padding="checkbox">
+                      <TableCell padding="checkbox" onClick={(event) => handleClick(event, row.id)}>
                         <Checkbox
                           color="primary"
                           checked={isItemSelected}
@@ -377,7 +380,7 @@ export default function EnhancedTable({columns = [], data = [], title, actions}:
                           Object.keys(actions).includes('edit') ||
                           Object.keys(actions).includes('delete') ||
                           Object.keys(actions).includes('view')) && (
-                            <TableCell key={'actions'} align="right" width={100}><ActionButtons actions={actions}/></TableCell>
+                            <TableCell key={'actions'} align="right" width={100}><ActionButtons actions={actions} row={row}/></TableCell>
                         )
                       }
                     </TableRow>
