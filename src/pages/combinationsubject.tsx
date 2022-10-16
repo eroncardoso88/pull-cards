@@ -3,7 +3,6 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import { z } from "zod";
 import EnhancedTable from '@/components/Table';
-import EnhancedTableCopy from '@/components/Table/index-copy';
 
 export type CreateUserInput = z.TypeOf<typeof createUserSchema>
 
@@ -35,12 +34,11 @@ const CombinationSubject: NextPage = (props) => {
           dataCombinationSubject && 
           dataCombinationSubject.length > 0 && (
             <>
-            {console.log('aeeaeae', dataCombinationSubject)}
-            <EnhancedTable 
-              columns={Object.keys(dataCombinationSubject[0])}
-              data={dataCombinationSubject}
-              title={"Assuntos dos jogos"}
-            />
+              <EnhancedTable 
+                columns={Object.keys(dataCombinationSubject[0])}
+                data={dataCombinationSubject}
+                title={"Assuntos dos jogos"}
+              />
             </>
         )}
       </div>

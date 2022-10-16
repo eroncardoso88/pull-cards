@@ -1,0 +1,56 @@
+export const applicationRoutes = [
+  {
+    label: 'Home',
+    icon: 'HomeIcon',
+    route: '/',
+    description: 'Listagem de versões e changelog',
+  },
+  {
+    label: 'Qtd de cartas',
+    icon: 'StyleIcon',
+    route: '/combinationtype',
+    description: "Criação da quantidade de cartas possíveis a serem tiradas"
+  },
+  {
+    label: 'Jogos possíveis',
+    icon: 'AltRouteIcon',
+    route: '/combination',
+    description: "Jogos possíveis a serem analisados. Casamento de pergunta X quantidade de cartas para a resposta."
+  },
+  {
+    label: 'Assuntos / Perguntas',
+    icon: 'TitleIcon',
+    route: '/combinationsubject',
+    description: "Criação da assuntos possíveis a serem perguntados"
+  },
+  {
+    label: 'Jogo',
+    icon: 'CasinoIcon',
+    route: '/combinationinfo',
+    description: "Jogo a ser analisado. Casamento de jogos que saem X perguntas"
+  },
+  {
+    label: 'Análise do jogo',
+    icon: 'PsychologyIcon',
+    route: '/analysis',
+    description: "Análise para o jogo"
+  },
+  {
+    label: 'Usuário jogou',
+    icon: 'VideogameAssetIcon',
+    route: '/game',
+    description: "O que os usuários já jogaram. Como ficaram as análises que eles receberam"
+  },
+  {
+    label: 'Reviews',
+    icon: 'RateReviewIcon',
+    route: '/reviews',
+    description: "O que os usuários jogaram, quando e o que acharam e opinaram das suas jogadas"
+  },
+  {
+    label: 'Usuários',
+    icon: 'PeopleAltIcon',
+    route: '/users',
+    description: "Quem está cadastrado no Pull Cards Tarot"
+  },
+]

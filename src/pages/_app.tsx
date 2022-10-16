@@ -7,7 +7,7 @@ import theme from '@/theme';
 import createEmotionCache from '@/createEmotionCache';
 import Head from 'next/head';
 import React from 'react';
-import { Header } from '@/components/Header';
+import { Layout } from '@/components/Layout';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -49,8 +49,9 @@ function MyApp({ Component, pageProps, emotionCache = clientSideEmotionCache }: 
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <Header />
-        <Component {...pageProps} />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
       </ThemeProvider>
       </ColorModeContext.Provider>
     </CacheProvider>  

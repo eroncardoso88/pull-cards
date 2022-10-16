@@ -40,9 +40,9 @@ export const combinationSubjectRouter = createRouter()
   })
   .query('list-combination-subject', {
     async resolve (): Promise<CombinationSubject[]> {
-      const allCombinationSubjectsFound = await prisma.combinationSubject.findMany({
-        select: 
-      })
+      const allCombinationSubjectsFound = await prisma.combinationSubject.findMany(
+
+      )
 
       // if (allUsersFound.length === 0) {
       //   throw new Error('There are no users!')
