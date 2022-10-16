@@ -1,6 +1,6 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { CacheProvider } from '@emotion/react';
 import theme from '@/theme';
@@ -8,16 +8,11 @@ import createEmotionCache from '@/createEmotionCache';
 import Head from 'next/head';
 import React from 'react';
 import { Layout } from '@/components/Layout';
+import { red } from '@mui/material/colors';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 export const ColorModeContext = React.createContext({ toggleColorMode: () => {} });
-
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-  },
-});
 
 function MyApp({ Component, pageProps, emotionCache = clientSideEmotionCache }: AppProps | any) {
   const [mode, setMode] = React.useState<'light' | 'dark'>('light');
@@ -32,11 +27,20 @@ function MyApp({ Component, pageProps, emotionCache = clientSideEmotionCache }: 
 
   const theme = React.useMemo(
     () =>
-      createTheme({
+    responsiveFontSizes(createTheme({
         palette: {
           mode,
+          primary: {
+            main: '#ff4400',
+          },
+          secondary: {
+            main: '#19857b',
+          },
+          error: {
+            main: red.A400,
+          },
         },
-      }),
+      })),
     [mode],
   );
 

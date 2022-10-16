@@ -17,14 +17,6 @@ a {
 
 * {
   box-sizing: border-box;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: rgb(33, 33, 33);
-  }
+  margin: 0;
+  padding: 0;
 }

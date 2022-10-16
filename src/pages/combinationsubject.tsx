@@ -25,11 +25,10 @@ const CombinationSubject: NextPage = (props) => {
 
 
   return (
-    <div className="h-screen w-screen flex flex-col">
+    <div className="flex flex-col">
       <button onClick={() => clickGetAll()}>
         Load Combination Subject
       </button>
-      <div>
         {
           dataCombinationSubject && 
           dataCombinationSubject.length > 0 && (
@@ -41,7 +40,6 @@ const CombinationSubject: NextPage = (props) => {
               />
             </>
         )}
-      </div>
     </div>
   )
 }

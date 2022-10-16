@@ -9,9 +9,7 @@ import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
 import MenuIcon from "@mui/icons-material/Menu";
 import * as MUIcon from "@mui/icons-material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -20,7 +18,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { applicationRoutes } from '@/apllicationRoutes';
+import { applicationRoutes } from "@/apllicationRoutes";
 import { Tooltip } from "@mui/material";
 const drawerWidth = 240;
 
@@ -93,33 +91,11 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-interface IconProps {
-  icon?: keyof typeof MUIcon;
-  open: boolean
-}
-
-const IconComp: React.FunctionComponent<IconProps> = ({
-  icon
-}) => {
-    const Icon = icon && MUIcon[icon];
-    return <>
-    {
-      Icon && 
-      <Icon 
-        sx={{
-          minWidth: 30,
-          justifyContent: "center",
-        }}
-      />
-    }
-    </>
-}
-
 export const Layout: React.FunctionComponent = ({ children }) => {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const colorMode = React.useContext(ColorModeContext);
-
+  console.log({ theme });
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -130,7 +106,6 @@ export const Layout: React.FunctionComponent = ({ children }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
@@ -147,35 +122,51 @@ export const Layout: React.FunctionComponent = ({ children }) => {
           </IconButton>
           <Box
             sx={{
+              width: "100%",
               display: "flex",
-              width: 60,
-              height: 40,
-              alignItems: "center",
-              justifyContent: "center",
-              bgcolor: "background.default",
-              color: "text.primary",
-              borderRadius: 1,
-              p: 3,
-              mr: 2
+              justifyContent: 'space-between',
+              alignItems: 'center'
             }}
           >
-            <IconButton
-              onClick={colorMode.toggleColorMode}
-              color="inherit"
+            <Typography variant="h6" noWrap component="div">
+              Tarot em criação
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                width: 40,
+                height: 40,
+                alignItems: "center",
+                justifyContent: "center",
+                justifySelf: 'end',
+                bgcolor:
+                  theme.palette.mode === "dark" ? "primary.main" : "grey.500",
+                color: "text.primary",
+                borderRadius: 1,
+                p: 1,
+              }}
             >
-              {theme.palette.mode === "dark" ? (
-                <Brightness7Icon />
-              ) : (
-                <Brightness4Icon />
-              )}
-            </IconButton>
+              <IconButton onClick={colorMode.toggleColorMode} color="inherit">
+                {theme.palette.mode === "dark" ? (
+                  <Brightness7Icon />
+                ) : (
+                  <Brightness4Icon />
+                )}
+              </IconButton>
+            </Box>
           </Box>
-          <Typography variant="h6" noWrap component="div">
-            Tarot em criação
-          </Typography>
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open}>
+      <Drawer 
+        variant="permanent" 
+        open={open} 
+        sx={{
+          [theme.breakpoints.down("sm")]: {
+            width: 0,
+            opacity: open ? 1 : 0
+          },
+        }}
+      >
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "rtl" ? (
@@ -185,44 +176,64 @@ export const Layout: React.FunctionComponent = ({ children }) => {
             )}
           </IconButton>
         </DrawerHeader>
-        <Divider />
         <List>
           {applicationRoutes.map((route, index) => {
             return (
-            <ListItem key={route.label} disablePadding sx={{ display: "block" }}>
-              <Tooltip arrow title={route.description} placement="right-end">
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                  }}
-                >
-                  <ListItemIcon
+              <ListItem
+                key={route.label}
+                disablePadding
+                sx={{ display: "block" }}
+              >
+                <Tooltip arrow title={route.description} placement="right-end">
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
                     }}
                   >
-                    { route.icon === "HomeIcon" && <MUIcon.Home />}
-                    { route.icon === "StyleIcon" && <MUIcon.Style />}
-                    { route.icon === "AltRouteIcon" && <MUIcon.AltRoute />}
-                    { route.icon === "TitleIcon" && <MUIcon.Title />}
-                    { route.icon === "CasinoIcon" && <MUIcon.Casino />}
-                    { route.icon === "PsychologyIcon" && <MUIcon.Psychology />}
-                    { route.icon === "VideogameAssetIcon" && <MUIcon.VideogameAsset />}
-                    { route.icon === "RateReviewIcon" && <MUIcon.RateReview />}
-                    { route.icon === "PeopleAltIcon" && <MUIcon.PeopleAlt />}
-                  </ListItemIcon>
-                  <ListItemText primary={route.label} sx={{ opacity: open ? 1 : 0 }} />
-                </ListItemButton>
-              </Tooltip>
-            </ListItem>
-          )})}
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {route.icon === "HomeIcon" && <MUIcon.Home />}
+                      {route.icon === "StyleIcon" && <MUIcon.Style />}
+                      {route.icon === "AltRouteIcon" && <MUIcon.AltRoute />}
+                      {route.icon === "TitleIcon" && <MUIcon.Title />}
+                      {route.icon === "CasinoIcon" && <MUIcon.Casino />}
+                      {route.icon === "PsychologyIcon" && <MUIcon.Psychology />}
+                      {route.icon === "VideogameAssetIcon" && (
+                        <MUIcon.VideogameAsset />
+                      )}
+                      {route.icon === "RateReviewIcon" && <MUIcon.RateReview />}
+                      {route.icon === "PeopleAltIcon" && <MUIcon.PeopleAlt />}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={route.label}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </Tooltip>
+              </ListItem>
+            );
+          })}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          px: 0.75,
+          py: 0.75,
+          [theme.breakpoints.up("sm")]: {
+            px: 2,
+            py: 1,
+          },
+        }}
+      >
         <DrawerHeader />
         {children}
       </Box>

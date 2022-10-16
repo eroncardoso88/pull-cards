@@ -178,7 +178,6 @@ interface EnhancedTableToolbarProps {
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   const { numSelected, title } = props;
-
   return (
     <Toolbar
       sx={{
@@ -297,12 +296,12 @@ export default function EnhancedTable({columns = [], data = [], title}: Enhanced
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1024, margin: 'auto' }}>
-      <Paper sx={{ width: '100%', mb: 2, padding: "0 10px" }}>
+    <Box sx={{ width: '100%', maxWidth: 1024, margin: '0 auto' }}>
+      <Paper sx={{ width: '100%', mb: 2, padding: "0 10px", opacity: 0.9 }} elevation={7}>
         <EnhancedTableToolbar numSelected={selected.length} title={title}/>
         <TableContainer>
           <Table
-            sx={{ minWidth: 335 }}
+            sx={{ minWidth: 280 }}
             aria-labelledby="tableTitle"
             size={dense ? 'small' : 'medium'}
           >
