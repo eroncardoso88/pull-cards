@@ -114,7 +114,7 @@ export const Layout: React.FunctionComponent = ({ children }) => {
             onClick={handleDrawerOpen}
             edge="start"
             sx={{
-              marginRight: 5,
+              marginRight: 2,
               ...(open && { display: "none" }),
             }}
           >
@@ -125,7 +125,11 @@ export const Layout: React.FunctionComponent = ({ children }) => {
               width: "100%",
               display: "flex",
               justifyContent: 'space-between',
-              alignItems: 'center'
+              alignItems: 'center',
+              pl: {
+                xs: 0,
+                sm: 1.3
+              }
             }}
           >
             <Typography variant="h6" noWrap component="div">

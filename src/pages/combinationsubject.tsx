@@ -27,6 +27,17 @@ const CombinationSubject: NextPage = (props) => {
     console.log('clickCreate!')
   }
 
+  const clickView = (id) => {
+    console.log('viewing', id)
+  }
+
+  const clickEdit = (id) => {
+    console.log('editing', id)
+  }
+
+  const clickDelete = (id) => {
+    console.log('editing', id)
+  }
 
   return (
     <Box>
@@ -38,7 +49,21 @@ const CombinationSubject: NextPage = (props) => {
                 columns={Object.keys(dataCombinationSubject[0])}
                 data={dataCombinationSubject}
                 title={"Assuntos dos jogos"}
-                actionCreate={() => clickCreate()}
+                actions={{
+                  edit: {
+                    callback: (id) => clickEdit(id)
+                  },
+                  view: {
+                    callback: (id) => clickView(id)
+                  },
+                  delete: {
+                    callback: (id) => clickDelete(id)
+                  },
+                  create: {
+                    callback: () => clickCreate()
+                  },
+
+                }}
               />
             </>
         )}

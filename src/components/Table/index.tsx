@@ -23,6 +23,22 @@ import { visuallyHidden } from '@mui/utils';
 import { translates } from '@/utils/translates';
 import { Button } from '@mui/material';
 import { useTableDensityContext } from '@/contexts/TableDensity';
+import { Create } from '@mui/icons-material';
+import { Visibility } from '@mui/icons-material';
+interface IActions {
+  edit?: {
+    callback: (id: string | number) => void
+  },
+  view?: {
+    callback: (id: string | number) => void
+  },
+  delete?: {
+    callback: (id: string | number) => void
+  },
+  create?: {
+    callback: () => void
+  },
+}
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -63,21 +79,33 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
 }
 
 interface HeadCell {
-  disablePadding: boolean;
   id: string;
-  label: string;
   numeric: boolean;
+  disablePadding: boolean;
+  label: string;
 }
 
-const generateHeadCells = (columns: Object): HeadCell[] => {
-  return Object.keys(columns).map(column => {
+const generateHeadCells = (columns: Object, actions: IActions): HeadCell[] => {
+  const headCells = Object.keys(columns).map(column => {
+    console.log('column', columns[column])
     return {
       id: columns[column],
       numeric: !isNaN(parseFloat(columns[column])),
-      disablePadding: true,
+      disablePadding: columns[column] === "id",
       label: translates(columns[column])
     }
   })
+  if (
+    Object.keys(actions).includes('edit') ||
+    Object.keys(actions).includes('view') || 
+    Object.keys(actions).includes('delete') 
+  )
+  return headCells.concat([{
+    id: 'actions',
+    numeric: false,
+    disablePadding: false,
+    label: "Ações"
+  }])
 }
 
 interface EnhancedTableHeadProps {
@@ -88,10 +116,11 @@ interface EnhancedTableHeadProps {
   orderBy: string;
   rowCount: number;
   tableHeadCells: []
+  actions: IActions
 }
 
 function EnhancedTableHead(props: EnhancedTableHeadProps) {
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, tableHeadCells } =
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, tableHeadCells, actions } =
     props;
   const createSortHandler =
     (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
@@ -112,13 +141,12 @@ function EnhancedTableHead(props: EnhancedTableHeadProps) {
             }}
           />
         </TableCell>
-        {generateHeadCells(tableHeadCells).map((headCell, index) => (
+        {generateHeadCells(tableHeadCells, actions).map((headCell, index) => (
           <TableCell
             key={headCell.id}
             align={index !== 0 ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
-
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -193,14 +221,32 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   );
 };
 
+interface IActionButtons {
+  actions: IActions
+}
+
+const ActionButtons:React.FunctionComponent<IActionButtons> = ({actions}) => {
+  return (
+    <Box sx={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', position: 'relative', left: '10px'}}>
+      {actions.view && <IconButton color="inherit" sx={{padding: '0 5px', width: '27.5px'}}><Visibility width={10}/></IconButton>}
+      {actions.edit && <IconButton color="inherit" sx={{padding: '0 5px', width: '27.5px'}}><Create /></IconButton>}
+      {actions.delete && <IconButton color="inherit" sx={{padding: '0 5px', width: '27.5px'}}><DeleteIcon /></IconButton>}
+    </Box>
+  )
+}
+
+
 interface EnhancedTableProps {
   columns: []
   data: []
   actionCreate: () => void
   actionChangeDense: () => void
+  actions: IActions
 }
 
-export default function EnhancedTable({columns = [], data = [], title, actionCreate, actionChangeDense}: EnhancedTableProps) {
+
+
+export default function EnhancedTable({columns = [], data = [], title, actions}: EnhancedTableProps) {
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState(columns[0]);
   const [selected, setSelected] = React.useState<readonly string[]>([]);
@@ -267,9 +313,12 @@ export default function EnhancedTable({columns = [], data = [], title, actionCre
 
   return (
     <Box sx={{ width: '100%', maxWidth: 1024, margin: '0 auto' }}>
-      <Paper sx={{ width: '100%', mb: 2, padding: "0 10px", opacity: 0.9 }} elevation={7}>
+      <Paper sx={{ width: '100%', mb: 2, padding: {xs: "0 2px", sm: "0 10px"}, opacity: 0.9, overflowX: "auto", maxWidth: '97.5vw' }} elevation={7}>
         <EnhancedTableToolbar numSelected={selected.length} title={title}/>
-        <TableContainer>
+        <TableContainer sx={{
+          width: "auto",
+          overflowX: "unset"
+        }}>
           <Table
             sx={{ minWidth: 280 }}
             aria-labelledby="tableTitle"
@@ -283,10 +332,9 @@ export default function EnhancedTable({columns = [], data = [], title, actionCre
               onRequestSort={handleRequestSort}
               rowCount={data.length}
               tableHeadCells={columns}
+              actions={actions}
             />
             <TableBody>
-              {/* if you don't need to support IE11, you can replace the `stableSort` call with:
-              rows.slice().sort(getComparator(order, orderBy)) */}
               {stableSort(data, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
@@ -323,6 +371,15 @@ export default function EnhancedTable({columns = [], data = [], title, actionCre
                       {columns.filter(column => column !== 'id').map(column => (
                         <TableCell key={column} align="right">{row[column]}</TableCell>
                       ))}
+
+                      {
+                        (
+                          Object.keys(actions).includes('edit') ||
+                          Object.keys(actions).includes('delete') ||
+                          Object.keys(actions).includes('view')) && (
+                            <TableCell key={'actions'} align="right" width={100}><ActionButtons actions={actions}/></TableCell>
+                        )
+                      }
                     </TableRow>
                   );
                 })}
@@ -346,6 +403,7 @@ export default function EnhancedTable({columns = [], data = [], title, actionCre
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          sx={{overflow: "unset"}}
         />
       </Paper>
       <Box 
@@ -361,11 +419,11 @@ export default function EnhancedTable({columns = [], data = [], title, actionCre
           control={<Switch checked={dense} onChange={() => handleChangeDense()} />}
           label="Adensar registros"
         />
-        <Button onClick={() => actionCreate()} variant="contained" color="primary" type="button">
+        {actions.create && <Button onClick={() => actions.create?.callback()} variant="contained" color="primary" type="button">
           <Typography variant="button">
             Criar
           </Typography>
-        </Button>
+        </Button>}
       </Box>
     </Box>
   );
