@@ -35,10 +35,70 @@ export const deckRouter = createRouter()
       }
     }
   })
+  .mutation('edit-deck', {
+    input: createDeckSchema,
+    async resolve({ctx, input}) {
+      const { 
+        name,
+        id
+       } = input
+       console.log(`input `, input)
+      try {
+        await prisma.deck.update({
+          where: {
+            id: id
+          },
+          data: {
+            name
+          }
+        })
+      } catch (e) {
+        if (e instanceof PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            throw new trpc.TRPCError({
+              code: 'CONFLICT',
+              
+            })
+          }
+        }
+      }
+    }
+  })
+  .mutation('disableone-deck', {
+    input: createDeckSchema,
+    async resolve({ctx, input}) {
+      const { 
+        id
+       } = input
+      try {
+        await prisma.deck.update({
+          where: {
+            id: id
+          },
+          data: {
+            active: false
+          }
+        })
+      } catch (e) {
+        if (e instanceof PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            throw new trpc.TRPCError({
+              code: 'CONFLICT',
+              
+            })
+          }
+        }
+      }
+    }
+  })
   .query('list-deck', {
     async resolve (): Promise<Deck[]> {
       const allDeckssFound = await prisma.deck.findMany(
-
+        {
+          where: {
+            active: true
+          }
+        }
       )
 
       // if (allUsersFound.length === 0) {

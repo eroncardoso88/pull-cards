@@ -1,21 +1,33 @@
-import { Box, Paper, Typography, Grid, Button, Modal } from "@mui/material";
-import { FunctionComponent, useState, useCallback } from "react";
-import TextField from "@mui/material/TextField";
-import { translates } from "@/utils/translates";
-import { isUuid } from "uuidv4";
+import { trpc } from "@/utils/trpc";
+import EnhancedTable, { BaseRecord } from "@/components/Table";
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Button,
+  Snackbar,
+  Typography,
+  Modal
+} from "@mui/material";
+import { EditorList } from "@/components/Editor/EditorList";
+import { FunctionComponent, useEffect, useRef, useState } from "react";
+import { uuid } from "uuidv4";
+import { fieldsCategorizer } from "@/utils/fieldCategorizer";
 
-interface IEditor {
-  instance: {
-    row: any;
-    status: "Edit" | "Create";
-  };
-  fields: any[];
-  stateFields: any;
-  cancel: (id: string) => void;
-  send: (isCreate: boolean, fieldValues: any) => void;
+export enum CurrentAction {
+  initial = "initial",
+  view = "view",
+  edit = "edit",
+  create = "create",
 }
 
-const modalStyle = {
+type CurrentActionType = {
+  status: CurrentAction;
+  row: any;
+};
+
+
+export const modalStyle = {
   position: "absolute" as "absolute",
   top: "50%",
   left: "50%",
@@ -27,154 +39,199 @@ const modalStyle = {
   p: 4,
 };
 
-export const Editor: FunctionComponent<IEditor> = ({
-  instance,
-  fields,
-  stateFields,
-  cancel,
-  send,
-}) => {
-  const [fieldValues, setFieldValues] = useState({
-    ...stateFields,
-    id: instance.row.id,
-  });
-  const [isDirty, setIsDirty] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+interface IEditor {
+  subject: "deck" | "card";
+  referenceField: any;
+  mainKey: string;
+  title: string;
+}
 
-  const changeValueHandler = useCallback(
-    (value, field) => {
-      const newValue = { ...fieldValues };
-      newValue[field] = value;
-      setFieldValues(newValue);
-      setIsDirty(true);
+const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, title}) => {
+  const { data: dataEditor, isLoading: isLoadingDecks, refetch } = trpc.useQuery([
+    `${subject}.list-${subject}`,
+  ]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [currentClicked, setCurrentClicked] = useState(referenceField);
+  const [currentAction, setCurrentActions] = useState<CurrentActionType[]>([
+    { status: CurrentAction.initial, row: {} },
+  ]);
+  const [alertCreate, setAlertCreate] = useState(false);
+  const [alertEdit, setAlertEdit] = useState(false);
+  const { mutate: mutateCreate, isSuccess: isSuccessCreate, error: errorCreate } = trpc.useMutation([`${subject}.create-${subject}`], {
+    onSuccess: (success) => {
+      console.log("success ", success);
     },
-    [fieldValues]
-  );
+  });
+
+  const { mutate: mutateEdit, isSuccess: isSuccessEdit, error: errorEdit } = trpc.useMutation([`${subject}.edit-${subject}`], {
+    onSuccess: (success) => {
+      console.log("success ", success);
+    },
+  });
+
+  const { mutate: mutateDisable, isSuccess: isSuccessDisable, error: errorDisable } = trpc.useMutation([`${subject}.disableone-${subject}`], {
+    onSuccess: (success) => {
+      console.log("success ", success);
+    },
+  });
+
+  const clickGetAll = () => {
+    console.log({ dataEditor });
+  };
+
+  const clickView = (row) => {
+    console.log("click view");
+
+    setCurrentActions([
+      ...currentAction,
+      {
+        status: CurrentAction.view,
+        row: row,
+      },
+    ]);
+  };
+
+  const clickCreate = () => {
+    if (currentAction.some((item) => item.status === CurrentAction.create))
+      setAlertCreate(true);
+    setCurrentActions([
+      ...currentAction,
+      {
+        status: CurrentAction.create,
+        row: { id: uuid() },
+      },
+    ]);
+  };
+
+  const clickEdit = (row) => {
+    console.log("click Edit", row.id);
+    if (currentAction.some((item) => item.row.id === row.id)) {
+      setAlertEdit(true);
+      return false;
+    }
+
+    setCurrentActions([
+      ...currentAction,
+      {
+        status: CurrentAction.edit,
+        row: row,
+      },
+    ]);
+  };
+
+  const clickDelete = (data) => {
+    console.log("clickDelete", data);
+    setCurrentClicked(data)
+    setShowConfirmModal(true)
+  };
+
+  const cancelHandler = (id) => {
+    console.log("cancelHandler!", id);
+
+    setCurrentActions([...currentAction.filter((item) => item.row.id !== id)]);
+  };
+
+  const saveDataHandler = async (isCreate, row) => {
+    console.log({ isCreate });
+    console.log({ row });
+    let mutation = isCreate ? mutateCreate: mutateEdit;
+
+    try {
+      const res = await mutation({
+        id: !isCreate ? row.id : 0,
+        name: row.name,
+      })
+      console.log('antes do refetch', res)
+      await setCurrentActions([...currentAction.filter(item => item.row.id !== row.id)]) 
+      setTimeout(() => {
+        refetch()
+      }, 1500)
+
+    } catch (e) {
+      alert(e)
+    }
+  };
+
   return (
     <>
-      <Paper
-        sx={{
-          width: "100%",
-          my: { xs: 1, sm: 3 },
-          padding: { xs: 1, sm: 2 },
-          opacity: 0.9,
-          overflowX: "auto",
-          maxWidth: "97.5vw",
-        }}
-        elevation={3}
-        onClick={() => console.log(fieldValues, stateFields, instance)}
-      >
-        {!isUuid(instance.row.id) ? (
-          <Typography variant="h6">
-            Editando o campo de id: {instance.row.id}
-          </Typography>
-        ) : (
-          <Typography variant="h6">Novo campo</Typography>
+      <Box>
+        {dataEditor && (
+          <>
+            <EnhancedTable
+              columns={Object.keys(dataEditor[0] || referenceField)}
+              data={dataEditor || referenceField}
+              title={title}
+              actions={{
+                edit: {
+                  callback: (row) => clickEdit(row),
+                },
+                view: {
+                  callback: (row) => clickView(row),
+                },
+                delete: {
+                  callback: (id) => clickDelete(id),
+                },
+                create: {
+                  callback: () => clickCreate(),
+                },
+              }}
+            />
+          </>
         )}
-        <Grid container spacing={2} sx={{ mt: { xs: 1, sm: 2 } }}>
-          {fields
-            .filter((field) => field.nameField !== "id")
-            .filter((field) => field.type === "smallText")
-            .map((field) => (
-              <Grid item key={field.nameField} xs={12} sm={4}>
-                <TextField
-                  id="standard-basic"
-                  label={translates(field.nameField)}
-                  variant="standard"
-                  sx={{ width: "100%" }}
-                  value={fieldValues[field.nameField]}
-                  onChange={(evt) =>
-                    changeValueHandler(evt.target.value, field.nameField)
-                  }
-                />
-              </Grid>
-            ))}
-          {fields
-            .filter((field) => field.nameField !== "id")
-            .filter((field) => field.type === "bigText")
-            .map((field) => (
-              <Grid item key={field.nameField} xs={12} sm={12}>
-                <TextField
-                  id="standard-basic"
-                  label={translates(field.nameField)}
-                  variant="standard"
-                  sx={{ width: "100%" }}
-                  multiline
-                  maxRows={6}
-                  value={fieldValues[field.fieldName]}
-                />
-              </Grid>
-            ))}
-        </Grid>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: "0 10px",
-            mt: { sx: 1, sm: 3 },
-          }}
+        <Button
+          onClick={() => clickGetAll()}
+          variant="contained"
+          color="primary"
+          type="button"
         >
-          <Button
-            variant="outlined"
-            onClick={() =>
-              !isDirty ? cancel(instance.row.id) : setShowCancelModal(true)
-            }
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={() =>
-              !isDirty ? cancel(instance.row.id) : setShowConfirmModal(true)
-            }
-          >
-            Enviar
-          </Button>
-        </Box>
-      </Paper>
-      <Modal
-        open={showCancelModal}
-        onClose={() => setShowCancelModal(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+          <Typography variant="button">Log Data</Typography>
+        </Button>
+
+        {currentAction
+          .filter((item) =>
+            [CurrentAction.edit, CurrentAction.create].includes(item.status)
+          )
+          .map((instance) => {
+            return (
+              <EditorList
+                key={instance.row.id}
+                instance={instance}
+                fields={fieldsCategorizer(referenceField)}
+                stateFields={
+                  instance.status === CurrentAction.edit
+                    ? instance.row
+                    : referenceField
+                }
+                cancel={(id) => cancelHandler(id)}
+                send={(isCreate, row) => saveDataHandler(isCreate, row)}
+              />
+            );
+          })}
+      </Box>
+      <Snackbar
+        open={alertCreate}
+        autoHideDuration={4000}
+        onClose={() => setAlertCreate(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Cancelar
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Você trabalhou neste item. Tem certeza que deseja cancelar?
-          </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: "0 10px",
-              mt: { sx: 1, sm: 3 },
-            }}
-          >
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setShowCancelModal(false);
-              }}
-            >
-              Não
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                cancel(instance.row.id);
-                setShowCancelModal(false);
-              }}
-            >
-              Sim
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
+        <Alert severity="warning" onClose={() => setAlertCreate(false)}>
+          <AlertTitle>Já está criando</AlertTitle>
+          Você já está criando conteúdo. É permitido criar mais de um por vez,
+          porém faça com atenção para evitar problemas.
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={alertEdit}
+        autoHideDuration={4000}
+        onClose={() => setAlertEdit(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="error" onClose={() => setAlertEdit(false)}>
+          <AlertTitle>Já em edição</AlertTitle>
+          Você já está editando este conteúdo. Procure na lista de edições
+          criações o respectivo registro.
+        </Alert>
+      </Snackbar>
       <Modal
         open={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}
@@ -186,7 +243,7 @@ export const Editor: FunctionComponent<IEditor> = ({
             Salvar
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Tem certeza que deseja salvar?
+            Tem certeza que deseja excluir { currentClicked[mainKey] }? Esta ação pode acarretar em consequências nos seus dados relacionados.
           </Typography>
           <Box
             sx={{
@@ -208,8 +265,8 @@ export const Editor: FunctionComponent<IEditor> = ({
               variant="contained"
               color="success"
               onClick={() => {
-                send(isUuid(instance.row.id), fieldValues);
                 setShowConfirmModal(false);
+                mutateDisable(currentClicked)
               }}
             >
               Sim
@@ -217,6 +274,9 @@ export const Editor: FunctionComponent<IEditor> = ({
           </Box>
         </Box>
       </Modal>
+
     </>
   );
 };
+
+export default Editor;

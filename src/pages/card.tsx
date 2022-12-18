@@ -3,19 +3,16 @@ import Editor  from "@/components/Editor";
 
 
 export const mainKey = 'name';
-export const subject = 'deck';
+export const subject = 'card';
 export const referenceField = {
   id: 1,
   name: '',
+  info: '',
+  deck: ''
 };
-export const title = "Os Decks Conhecidos"
-export const foreignKeys = [
-  {
+export const title = "As Cartas conhecidas"
 
-  }
-]
-
-const Decks: NextPage = (props) => {
+const Cards: NextPage = (props) => {
 
   return (
     <Editor 
@@ -27,4 +24,4 @@ const Decks: NextPage = (props) => {
   )
 }
 
-export default Decks
+export default Cards

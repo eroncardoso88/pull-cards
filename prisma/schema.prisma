@@ -21,14 +21,16 @@ enum Role {
 model Deck {
   id              Int               @id @default(autoincrement())
   name            String?
+  active          Boolean           @default(true)
   Card            Card[]
   CombinationType CombinationType[]
 }
 
 model Card {
-  id     Int     @id @default(autoincrement())
-  name   String?
-  info   String?
+  id     String  @id @default(cuid())
+  name   String
+  info   String
+  active Boolean @default(true)
   Deck   Deck?   @relation(fields: [deckId], references: [id])
   deckId Int?
 
@@ -44,6 +46,7 @@ model User {
   birthday        DateTime?
   location        String?
   role            Role       @default(USER)
+  active          Boolean    @default(true)
   AnalysisCreated Analysis[]
   Game            Game[]
 
@@ -53,6 +56,7 @@ model User {
 model CombinationType {
   id                 Int                  @id @default(autoincrement())
   description        String
+  active             Boolean              @default(true)
   Deck               Deck                 @relation(fields: [deckId], references: [id])
   deckId             Int
   Combination        Combination[]
@@ -66,6 +70,7 @@ model CombinationSubject {
   description       String
   CombinationType   CombinationType @relation(fields: [combinationTypeId], references: [id])
   combinationTypeId Int
+  active            Boolean
   Combination       Combination[]
 
   @@index([combinationTypeId])
@@ -74,6 +79,7 @@ model CombinationSubject {
 model Combination {
   id                   String             @id @default(uuid())
   name                 String             @unique
+  active               Boolean            @default(true)
   combinationType      CombinationType    @relation(fields: [combinationTypeId], references: [id])
   combinationTypeId    Int
   combinationSubject   CombinationSubject @relation(fields: [combinationSubjectId], references: [id])
@@ -87,6 +93,7 @@ model Combination {
 model CombinationInfo {
   id               String      @id @default(uuid())
   cardSequenceEnum String      @unique
+  active           Boolean     @default(true)
   combination      Combination @relation(fields: [combinationId], references: [id])
   combinationId    String
   Analysis         Analysis?
@@ -98,6 +105,7 @@ model CombinationInfo {
 model Analysis {
   id                String          @id @default(uuid())
   author            User            @relation(fields: [authorId], references: [id])
+  active            Boolean         @default(true)
   authorId          String
   createdAt         DateTime        @default(now())
   combinationInfo   CombinationInfo @relation(fields: [combinationInfoId], references: [id])
@@ -114,6 +122,7 @@ model Analysis {
 model Game {
   id                String          @id @default(cuid())
   userPlayer        User            @relation(fields: [userPlayerId], references: [id])
+  active            Boolean         @default(true)
   userPlayerId      String
   timestamps        DateTime        @default(now())
   combinationInfo   CombinationInfo @relation(fields: [combinationInfoId], references: [id])
@@ -126,6 +135,7 @@ model Game {
 
 model Review {
   id          String   @id @default(uuid())
+  active      Boolean  @default(true)
   gradeNumber Int
   description String   @db.VarChar(4000)
   timestamps  DateTime @default(now())
