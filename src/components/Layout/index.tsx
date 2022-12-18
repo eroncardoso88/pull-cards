@@ -208,6 +208,8 @@ export const Layout: React.FunctionComponent = ({ children }) => {
                         {route.icon === "AltRouteIcon" && <MUIcon.AltRoute />}
                         {route.icon === "TitleIcon" && <MUIcon.Title />}
                         {route.icon === "CasinoIcon" && <MUIcon.Casino />}
+                        {route.icon === "SwitchAccount" && <MUIcon.SwitchAccount />}
+                        {route.icon === "AssignmentInd" && <MUIcon.AssignmentInd />}
                         {route.icon === "PsychologyIcon" && <MUIcon.Psychology />}
                         {route.icon === "VideogameAssetIcon" && (
                           <MUIcon.VideogameAsset />

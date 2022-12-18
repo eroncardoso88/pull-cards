@@ -16,7 +16,7 @@ import { useState } from "react";
 import { uuid } from "uuidv4";
 import { fieldsCategorizer } from "@/utils/fieldCategorizer";
 
-export type CreateUserInput = z.TypeOf<typeof createUserSchema>;
+// export type CreateUserInput = z.TypeOf<typeof createUserSchema>;
 
 export enum CurrentAction {
   initial = "initial",
@@ -35,9 +35,9 @@ export const referenceField = {
   description: "",
   deckName: "",
 };
-const CombinationType: NextPage = (props) => {
-  const { data: dataCombinationType, isLoading: isLoadingCombinationType } =
-    trpc.useQuery(["combination-type.list-combination-type"]);
+const Decks: NextPage = (props) => {
+  const { data: dataDecks, isLoading: isLoadingDecks } =
+    trpc.useQuery(["deck.list-deck"]);
   const [currentId, setCurrentId] = useState();
   const [currentAction, setCurrentAction] = useState<CurrentActionType[]>([
     { status: CurrentAction.initial, row: {} },
@@ -45,7 +45,7 @@ const CombinationType: NextPage = (props) => {
   const [alertCreate, setAlertCreate] = useState(false);
   const [alertEdit, setAlertEdit] = useState(false);
   const { mutate, isSuccess, error } = trpc.useMutation(
-    ["combination-type.create-combination-type"],
+    ["deck.create-deck"],
     {
       onSuccess: (success) => {
         console.log("success ", success);
@@ -54,7 +54,7 @@ const CombinationType: NextPage = (props) => {
   );
 
   const clickGetAll = () => {
-    console.log({ dataCombinationType });
+    console.log({ dataDecks });
   };
 
   const clickView = (row) => {
@@ -115,12 +115,12 @@ const CombinationType: NextPage = (props) => {
   return (
     <>
       <Box>
-        {dataCombinationType && (
+        {dataDecks && (
           <>
             <EnhancedTable
-              columns={Object.keys(dataCombinationType[0] || referenceField)}
-              data={dataCombinationType || referenceField}
-              title={"Quantas cartas serão tiradas para o jogo"}
+              columns={Object.keys(dataDecks[0] || referenceField)}
+              data={dataDecks || referenceField}
+              title={"Os decks conhecidos"}
               actions={{
                 edit: {
                   callback: (row) => clickEdit(row),
@@ -196,4 +196,4 @@ const CombinationType: NextPage = (props) => {
   );
 };
 
-export default CombinationType;
+export default Decks;

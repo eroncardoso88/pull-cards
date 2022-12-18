@@ -13,13 +13,26 @@ datasource db {
   referentialIntegrity = "prisma"
 }
 
-enum DeckName {
-  MARSEILLE
-}
-
 enum Role {
   USER
   ADMIN
+}
+
+model Deck {
+  id              Int               @id @default(autoincrement())
+  name            String?
+  Card            Card[]
+  CombinationType CombinationType[]
+}
+
+model Card {
+  id     Int     @id @default(autoincrement())
+  name   String?
+  info   String?
+  Deck   Deck?   @relation(fields: [deckId], references: [id])
+  deckId Int?
+
+  @@index([deckId])
 }
 
 model User {
@@ -38,17 +51,24 @@ model User {
 }
 
 model CombinationType {
-  id          Int           @id @default(autoincrement())
-  description String
-  deckName    DeckName      @default(MARSEILLE)
-  Combination Combination[]
+  id                 Int                  @id @default(autoincrement())
+  description        String
+  Deck               Deck                 @relation(fields: [deckId], references: [id])
+  deckId             Int
+  Combination        Combination[]
+  CombinationSubject CombinationSubject[]
+
+  @@index([deckId])
 }
 
 model CombinationSubject {
-  id          Int           @id @default(autoincrement())
-  description String
-  deckName    DeckName      @default(MARSEILLE)
-  Combination Combination[]
+  id                Int             @id @default(autoincrement())
+  description       String
+  CombinationType   CombinationType @relation(fields: [combinationTypeId], references: [id])
+  combinationTypeId Int
+  Combination       Combination[]
+
+  @@index([combinationTypeId])
 }
 
 model Combination {
@@ -59,6 +79,9 @@ model Combination {
   combinationSubject   CombinationSubject @relation(fields: [combinationSubjectId], references: [id])
   combinationSubjectId Int
   CombinationInfo      CombinationInfo[]
+
+  @@index([combinationTypeId])
+  @@index([combinationSubjectId])
 }
 
 model CombinationInfo {
@@ -68,6 +91,8 @@ model CombinationInfo {
   combinationId    String
   Analysis         Analysis?
   Game             Game[]
+
+  @@index([combinationId])
 }
 
 model Analysis {
@@ -81,6 +106,9 @@ model Analysis {
   textTwo           String          @db.Text
   textThree         String          @db.Text
   textFour          String          @db.Text
+
+  @@index([combinationInfoId])
+  @@index([authorId])
 }
 
 model Game {
@@ -91,6 +119,9 @@ model Game {
   combinationInfo   CombinationInfo @relation(fields: [combinationInfoId], references: [id])
   combinationInfoId String
   Review            Review[]
+
+  @@index([userPlayerId])
+  @@index([combinationInfoId])
 }
 
 model Review {
@@ -100,4 +131,6 @@ model Review {
   timestamps  DateTime @default(now())
   game        Game     @relation(fields: [gameId], references: [id])
   gameId      String
+
+  @@index([gameId])
 }

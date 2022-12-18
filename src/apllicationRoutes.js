@@ -6,6 +6,18 @@ export const applicationRoutes = [
     description: 'Listagem de versões e changelog',
   },
   {
+    label: 'Decks',
+    icon: 'SwitchAccount',
+    route: '/deck',
+    description: "Criação de novos decks"
+  },
+  {
+    label: 'Cards',
+    icon: 'AssignmentInd',
+    route: '/card',
+    description: "Criação de novas cards para os decks"
+  },
+  {
     label: 'Qtd de cartas',
     icon: 'StyleIcon',
     route: '/combinationtype',
