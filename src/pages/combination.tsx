@@ -26,24 +26,25 @@ type CurrentActionType = {
 
 export const referenceField = {
   "id": 1,
-  "description": "",
-  "deckName": ""
+  "name": "",
+  "combinationTypeId": "",
+  "combinationSubjectId": ""
 }
-const CombinationSubject: NextPage = (props) => {
-  const { data: dataCombinationSubject, isLoading: isLoadingCombinationSubject, refetch } = trpc.useQuery(["combination-subject.list-combination-subject"])
+
+const Combination: NextPage = (props) => {
+  const { data: dataCombination, isLoading: isLoadingCombination } = trpc.useQuery(["combination.list-combination"])
   const [currentId, setCurrentId] = useState()
   const [currentAction, setCurrentAction] = useState<CurrentActionType[]>([{status: CurrentAction.initial, row: {}}])
   const [alertCreate, setAlertCreate] = useState(false)
   const [alertEdit, setAlertEdit] = useState(false)
-  const { mutate, isSuccess, error } = trpc.useMutation(["combination-subject.create-combination-subject"], {
+  const { mutate, isSuccess, error } = trpc.useMutation(["combination.create-combination"], {
     onSuccess: (success) => {
       console.log('success ', success)
     }
   })
 
   const clickGetAll = () => {
-    console.log({dataCombinationSubject})
-    refetch()
+    console.log({dataCombination})
   }
 
   const clickView = (row) => {
@@ -86,37 +87,21 @@ const CombinationSubject: NextPage = (props) => {
     setCurrentAction([...currentAction.filter(item => item.row.id !== id)]) 
   }
 
-  const saveDataHandler = async (isCreate, row) => {
+  const saveDataHandler = (isCreate, row) => {
     console.log({isCreate})
     console.log({row})
-    try {
-      const res = await mutate({
-        id: dataCombinationSubject.length > 0 ? dataCombinationSubject.length + 1 : 1,
-        description: row.description,
-        deckName: "MARSEILLE"
-      })
-      console.log('antes do refetch', res)
-      await setCurrentAction([...currentAction.filter(item => item.row.id !== row.id)]) 
-      setTimeout(() => {
-        refetch()
-      }, 1500)
-
-    } catch (e) {
-      alert(e)
-    }
-    
   }
 
   return (
     <>
     <Box>
         {
-          dataCombinationSubject && (
+          dataCombination && (
             <>
               <EnhancedTable 
-                columns={Object.keys(dataCombinationSubject[0] || referenceField)}
-                data={dataCombinationSubject || referenceField}
-                title={"Assuntos dos jogos"}
+                columns={Object.keys(dataCombination[0] || referenceField)}
+                data={dataCombination || referenceField}
+                title={"Jogos possíveis"}
                 actions={{
                   edit: {
                     callback: (row) => clickEdit(row)
@@ -171,4 +156,4 @@ const CombinationSubject: NextPage = (props) => {
   )
 }
 
-export default CombinationSubject
+export default Combination

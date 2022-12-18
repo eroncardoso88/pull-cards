@@ -1,4 +1,15 @@
 export const translates = (value: string) => {
   if (value === "deckName") return "Baralho"
   if (value === "description") return "Descrição"
+  if (value === "name") return "Nome"
+  if (value === "combinationTypeId") return "Qtd de cartas (id)"
+  if (value === "combinationSubjectId") return "Assunto (id)"
+  if (value === "authorId") return "Autor (id)"
+  if (value === "createdAt") return "Data de criação"
+  if (value === "combinationInfoId") return "Referente ao jogo (id)"
+  if (value === "textOne") return "Texto 1"
+  if (value === "textTwo") return "Texto 2"
+  if (value === "textThree") return "Texto 3"
+  if (value === "textFour") return "Texto 4"
+  if (value === "cardSequenceEnum") return "Código da sequência"
 }

@@ -103,6 +103,8 @@ const generateHeadCells = (columns: Object, actions: IActions): HeadCell[] => {
     Object.keys(actions).includes('view') || 
     Object.keys(actions).includes('delete') 
   )
+  console.log(headCells);
+  
   return headCells.concat([{
     id: 'actions',
     numeric: false,
@@ -316,7 +318,7 @@ export default function EnhancedTable({columns = [], data = [], title, actions}:
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1024, margin: '0 auto' }}>
+    <Box sx={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
       <Paper sx={{ width: '100%', mb: 2, padding: {xs: "0 2px", sm: "0 10px"}, opacity: 0.9, overflowX: "auto", maxWidth: '97.5vw' }} elevation={7}>
         <EnhancedTableToolbar numSelected={selected.length} title={title}/>
         <TableContainer sx={{

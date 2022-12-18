@@ -95,7 +95,6 @@ export const Layout: React.FunctionComponent = ({ children }) => {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const colorMode = React.useContext(ColorModeContext);
-  console.log({ theme });
   const handleDrawerOpen = () => {
     setOpen(true);
   };

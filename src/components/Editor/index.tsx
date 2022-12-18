@@ -28,7 +28,7 @@ const modalStyle = {
 };
 
 export const Editor:FunctionComponent<IEditor> = ({instance, fields, stateFields, cancel, send}) => {
-  const [fieldValues, setFieldValues] = useState(stateFields)
+  const [fieldValues, setFieldValues] = useState({...stateFields, id: instance.row.id})
   const [isDirty, setIsDirty] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
@@ -41,7 +41,7 @@ export const Editor:FunctionComponent<IEditor> = ({instance, fields, stateFields
   }, [fieldValues])
   return (
     <>
-      <Paper sx={{ width: '100%', my: {xs: 1, sm: 3}, padding: {xs: 1, sm: 2}, opacity: 0.9, overflowX: "auto", maxWidth: '97.5vw' }} elevation={3}>
+      <Paper sx={{ width: '100%', my: {xs: 1, sm: 3}, padding: {xs: 1, sm: 2}, opacity: 0.9, overflowX: "auto", maxWidth: '97.5vw' }} elevation={3} onClick={() => console.log(fieldValues, stateFields, instance)}>
         {!isUuid(instance.row.id) ? <Typography variant="h6">Editando o campo de id: {instance.row.id}</Typography> : <Typography variant="h6">Novo campo</Typography> }
         <Grid container spacing={2} sx={{mt: {xs: 1, sm: 2}}}>
           {fields.filter(field => field.nameField !== "id").filter(field => field.type === "smallText").map(field => (
