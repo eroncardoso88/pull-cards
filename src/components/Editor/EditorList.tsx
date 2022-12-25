@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, Grid, Button, Modal } from "@mui/material";
+import { Box, Paper, Typography, Grid, Button, Modal, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { FunctionComponent, useState, useCallback } from "react";
 import TextField from "@mui/material/TextField";
 import { translates } from "@/utils/translates";
@@ -14,6 +14,8 @@ interface IEditorList {
   stateFields: any;
   cancel: (id: string) => void;
   send: (isCreate: boolean, fieldValues: any) => void;
+  helperKeysData: any
+  helperKeys: any[]
 }
 
 export const EditorList: FunctionComponent<IEditorList> = ({
@@ -22,6 +24,8 @@ export const EditorList: FunctionComponent<IEditorList> = ({
   stateFields,
   cancel,
   send,
+  helperKeys,
+  helperKeysData
 }) => {
   const [fieldValues, setFieldValues] = useState({
     ...stateFields,
@@ -40,6 +44,19 @@ export const EditorList: FunctionComponent<IEditorList> = ({
     },
     [fieldValues]
   );
+
+  const getFieldOptions = (nameField, fields) => {
+    console.log(`nameField `, nameField)
+    console.log(`helperKeys `, helperKeys)
+    const reqReplaceIndex = helperKeys.findIndex(key => key.shouldDownload === nameField ||  key.replaceKeyReq === nameField )
+    console.log(`reqReplaceIndex `, reqReplaceIndex)
+    if (reqReplaceIndex === -1) return []
+    const dataReplace = helperKeysData[reqReplaceIndex].data.map(elem => ({id: elem.id.toString(), description: elem[helperKeys[reqReplaceIndex].replaceKeyRes]}))
+    return dataReplace
+    // return dataReplace[helperKeys[reqReplaceIndex].replaceKeyRes] 
+  }
+
+
   return (
     <>
       <Paper
@@ -68,7 +85,6 @@ export const EditorList: FunctionComponent<IEditorList> = ({
             .map((field) => (
               <Grid item key={field.nameField} xs={12} sm={4}>
                 <TextField
-                  id="standard-basic"
                   label={translates(field.nameField)}
                   variant="standard"
                   sx={{ width: "100%" }}
@@ -81,18 +97,41 @@ export const EditorList: FunctionComponent<IEditorList> = ({
             ))}
           {fields
             .filter((field) => field.nameField !== "id")
+            .filter((field) => field.type === "translatedSelect")
+            .map((field) => (
+              <Grid item key={field.nameField} xs={12} sm={4}>
+                <FormControl sx={{ width: "100%" }}>
+                  <InputLabel>{translates(field.nameField)}</InputLabel>
+                  <Select
+                    label={translates(field.nameField)}
+                    variant="standard"
+                    sx={{ width: "100%" }}
+                    value={fieldValues[field.nameField]}
+                    onChange={(evt) =>
+                      changeValueHandler(evt.target.value, field.nameField)
+                    }
+                  >
+                    {getFieldOptions(field.nameField, fields).map(item => (
+                      <MenuItem value={item.id} key={item.id}>{item.description}</MenuItem>
+                    ))}
+
+                  </Select>
+                </FormControl>
+              </Grid>
+            ))}
+          {fields
+            .filter((field) => field.nameField !== "id")
             .filter((field) => field.type === "bigText")
             .map((field) => (
               <Grid item key={field.nameField} xs={12} sm={12}>
-                <TextField
-                  id="standard-basic"
+                {<TextField
                   label={translates(field.nameField)}
                   variant="standard"
                   sx={{ width: "100%" }}
                   multiline
                   maxRows={6}
                   value={fieldValues[field.fieldName]}
-                />
+                />}
               </Grid>
             ))}
         </Grid>

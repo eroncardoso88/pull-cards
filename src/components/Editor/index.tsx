@@ -39,15 +39,24 @@ export const modalStyle = {
   p: 4,
 };
 
+type Subject = "deck" | "card" | "user" | "combination-subject" | "combination-type" | "combination-info" | "combination" |"analysis";
+
+interface IForgeignData {
+  shouldDownload: Subject;
+  replaceKeyReq: string;
+  replaceKeyRes: string;
+}
+
 interface IEditor {
-  subject: "deck" | "card";
+  subject: Subject
   referenceField: any;
   mainKey: string;
   title: string;
+  helperKeys: IForgeignData[]
 }
 
-const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, title}) => {
-  const { data: dataEditor, isLoading: isLoadingDecks, refetch } = trpc.useQuery([
+const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, title, helperKeys = []}) => {
+  const { data: dataEditor, isLoading: isLoadingEditor, refetch } = trpc.useQuery([
     `${subject}.list-${subject}`,
   ]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -75,13 +84,21 @@ const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, t
     },
   });
 
+  let helpeyKeyOne
+  if (helperKeys[0]) {
+    helpeyKeyOne = trpc.useQuery([`${helperKeys[0]?.shouldDownload}.list-${helperKeys[0]?.shouldDownload}`])
+  }
+
+  let helpeyKeyTwo
+  if (helperKeys[1]) {
+    helpeyKeyTwo = trpc.useQuery([`${helperKeys[1]?.shouldDownload}.list-${helperKeys[1]?.shouldDownload}`])
+  }
+
   const clickGetAll = () => {
     console.log({ dataEditor });
   };
 
   const clickView = (row) => {
-    console.log("click view");
-
     setCurrentActions([
       ...currentAction,
       {
@@ -103,8 +120,18 @@ const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, t
     ]);
   };
 
+  const getSelectedFieldOption = (row) => {
+    Object.keys(row).forEach(key => {
+      helperKeys.forEach((helperKey, index) => {
+        if (key === helperKey.replaceKeyReq) {
+          row[helperKey.shouldDownload] = row[key].toString()
+        }
+      })
+    })
+    return row
+  }
+
   const clickEdit = (row) => {
-    console.log("click Edit", row.id);
     if (currentAction.some((item) => item.row.id === row.id)) {
       setAlertEdit(true);
       return false;
@@ -114,34 +141,33 @@ const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, t
       ...currentAction,
       {
         status: CurrentAction.edit,
-        row: row,
+        row: getSelectedFieldOption(row),
       },
     ]);
   };
 
   const clickDelete = (data) => {
-    console.log("clickDelete", data);
     setCurrentClicked(data)
     setShowConfirmModal(true)
+    
   };
 
   const cancelHandler = (id) => {
-    console.log("cancelHandler!", id);
-
     setCurrentActions([...currentAction.filter((item) => item.row.id !== id)]);
   };
 
   const saveDataHandler = async (isCreate, row) => {
-    console.log({ isCreate });
-    console.log({ row });
+    console.log(`row `, row)
+    console.log(`isCreate `, isCreate)
     let mutation = isCreate ? mutateCreate: mutateEdit;
+    helperKeys[0] && !row[helperKeys[0].replaceKeyReq] ? row[helperKeys[0].replaceKeyReq] = row[helperKeys[0].shouldDownload] : null
+    helperKeys[1] && !row[helperKeys[1].replaceKeyReq] ? row[helperKeys[1].replaceKeyReq] = row[helperKeys[1].shouldDownload] : null
 
     try {
       const res = await mutation({
         id: !isCreate ? row.id : 0,
-        name: row.name,
+        ...row
       })
-      console.log('antes do refetch', res)
       await setCurrentActions([...currentAction.filter(item => item.row.id !== row.id)]) 
       setTimeout(() => {
         refetch()
@@ -161,6 +187,8 @@ const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, t
               columns={Object.keys(dataEditor[0] || referenceField)}
               data={dataEditor || referenceField}
               title={title}
+              helperKeysData={[helpeyKeyOne, helpeyKeyTwo]}
+              helperKeys={helperKeys}
               actions={{
                 edit: {
                   callback: (row) => clickEdit(row),
@@ -197,6 +225,8 @@ const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, t
                 key={instance.row.id}
                 instance={instance}
                 fields={fieldsCategorizer(referenceField)}
+                helperKeysData={[helpeyKeyOne, helpeyKeyTwo]}
+                helperKeys={helperKeys}  
                 stateFields={
                   instance.status === CurrentAction.edit
                     ? instance.row
@@ -266,7 +296,10 @@ const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, t
               color="success"
               onClick={() => {
                 setShowConfirmModal(false);
-                mutateDisable(currentClicked)
+                mutateDisable(currentClicked.id)
+                setTimeout(() => {
+                  refetch()
+                }, 1500)
               }}
             >
               Sim

@@ -18,22 +18,22 @@ export const applicationRoutes = [
     description: "Criação de novas cards para os decks"
   },
   {
+    label: 'Assuntos / Perguntas',
+    icon: 'TitleIcon',
+    route: '/combinationsubject',
+    description: "Criação da assuntos possíveis a serem perguntados"
+  },
+  {
     label: 'Qtd de cartas',
     icon: 'StyleIcon',
     route: '/combinationtype',
-    description: "Criação da quantidade de cartas possíveis a serem tiradas"
+    description: "Criação das possibilidades de quantidades de cartas tiradas para um jogo possível"
   },
   {
     label: 'Jogos possíveis',
     icon: 'AltRouteIcon',
     route: '/combination',
     description: "Jogos possíveis a serem analisados. Casamento de pergunta X quantidade de cartas para a resposta."
-  },
-  {
-    label: 'Assuntos / Perguntas',
-    icon: 'TitleIcon',
-    route: '/combinationsubject',
-    description: "Criação da assuntos possíveis a serem perguntados"
   },
   {
     label: 'Jogo',

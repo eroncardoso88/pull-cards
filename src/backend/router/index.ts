@@ -23,7 +23,7 @@ export const appRouter = trpc
       };
     },
   })
-  .merge('users.', userRouter)
+  .merge('user.', userRouter)
   .merge('combination-subject.', combinationSubjectRouter)
   .merge('combination-type.', combinationTypeRouter)
   .merge('deck.', deckRouter)

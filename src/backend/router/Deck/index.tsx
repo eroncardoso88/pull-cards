@@ -6,9 +6,11 @@ import * as trpc from '@trpc/server';
 import { Deck } from "@prisma/client";
 
 export const createDeckSchema = z.object({
-  id: z.number(),
+  id: z.any(),
   name: z.string(),
 })
+
+export const disableSchema = z.number();
 
 export const deckRouter = createRouter()
   .mutation('create-deck', {
@@ -42,11 +44,10 @@ export const deckRouter = createRouter()
         name,
         id
        } = input
-       console.log(`input `, input)
       try {
         await prisma.deck.update({
           where: {
-            id: id
+            id: parseInt(id)
           },
           data: {
             name
@@ -65,11 +66,9 @@ export const deckRouter = createRouter()
     }
   })
   .mutation('disableone-deck', {
-    input: createDeckSchema,
+    input: disableSchema,
     async resolve({ctx, input}) {
-      const { 
-        id
-       } = input
+      const id = input
       try {
         await prisma.deck.update({
           where: {

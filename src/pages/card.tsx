@@ -11,6 +11,20 @@ export const referenceField = {
   deck: ''
 };
 export const title = "As Cartas conhecidas"
+export type Subject = "deck" | "card" | "user" | "combination-subject" | "combination-type" | "combination-info" | "combination" | "analysis";
+interface IForgeignData {
+  shouldDownload: Subject;
+  replaceKeyReq: string;
+  replaceKeyRes: string;
+}
+
+export const foreignData: IForgeignData[] = [
+  {
+  shouldDownload: "deck",
+  replaceKeyReq: "deckId",
+  replaceKeyRes: "name"
+  },
+]
 
 const Cards: NextPage = (props) => {
 
@@ -20,6 +34,7 @@ const Cards: NextPage = (props) => {
       mainKey={mainKey}
       subject={subject}
       title={title}
+      helperKeys={foreignData}
     />
   )
 }

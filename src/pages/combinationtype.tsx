@@ -1,199 +1,42 @@
-import { trpc } from "@/utils/trpc";
 import type { NextPage } from "next";
-import Head from "next/head";
-import { z } from "zod";
-import EnhancedTable, { BaseRecord } from "@/components/Table";
-import {
-  Alert,
-  AlertTitle,
-  Box,
-  Button,
-  Snackbar,
-  Typography,
-} from "@mui/material";
-import { Editor } from "@/components/Editor";
-import { useState } from "react";
-import { uuid } from "uuidv4";
-import { fieldsCategorizer } from "@/utils/fieldCategorizer";
+import Editor  from "@/components/Editor";
 
-export type CreateUserInput = z.TypeOf<typeof createUserSchema>;
 
-export enum CurrentAction {
-  initial = "initial",
-  view = "view",
-  edit = "edit",
-  create = "create",
+export const mainKey = 'name';
+export const subject = 'combination-type';
+export const referenceField = {
+  "id": 1,
+  "description": "",
+  "deckId": ""
 }
 
-type CurrentActionType = {
-  status: CurrentAction;
-  row: any;
-};
+export const title = "Possibilidades de quantidades de cartas tiradas para o jogo"
+export type Subject = "deck" | "card" | "user" | "combination-subject" | "combination-type" | "combination-info" | "combination" | "analysis";
+interface IForgeignData {
+  shouldDownload: Subject;
+  replaceKeyReq: string;
+  replaceKeyRes: string;
+}
 
-export const referenceField = {
-  id: 1,
-  description: "",
-  deckName: "",
-};
-const CombinationType: NextPage = (props) => {
-  const { data: dataCombinationType, isLoading: isLoadingCombinationType } =
-    trpc.useQuery(["combination-type.list-combination-type"]);
-  const [currentId, setCurrentId] = useState();
-  const [currentAction, setCurrentAction] = useState<CurrentActionType[]>([
-    { status: CurrentAction.initial, row: {} },
-  ]);
-  const [alertCreate, setAlertCreate] = useState(false);
-  const [alertEdit, setAlertEdit] = useState(false);
-  const { mutate, isSuccess, error } = trpc.useMutation(
-    ["combination-type.create-combination-type"],
-    {
-      onSuccess: (success) => {
-        console.log("success ", success);
-      },
-    }
-  );
+export const foreignData: IForgeignData[] = [
+  {
+    shouldDownload: "deck",
+    replaceKeyReq: "deckId",
+    replaceKeyRes: "name"
+  },
+]
 
-  const clickGetAll = () => {
-    console.log({ dataCombinationType });
-  };
-
-  const clickView = (row) => {
-    console.log("click view");
-
-    setCurrentAction([
-      ...currentAction,
-      {
-        status: CurrentAction.view,
-        row: row,
-      },
-    ]);
-  };
-
-  const clickCreate = () => {
-    if (currentAction.some((item) => item.status === CurrentAction.create))
-      setAlertCreate(true);
-    setCurrentAction([
-      ...currentAction,
-      {
-        status: CurrentAction.create,
-        row: { id: uuid() },
-      },
-    ]);
-  };
-
-  const clickEdit = (row) => {
-    console.log("click Edit", row.id);
-    if (currentAction.some((item) => item.row.id === row.id)) {
-      setAlertEdit(true);
-      return false;
-    }
-
-    setCurrentAction([
-      ...currentAction,
-      {
-        status: CurrentAction.edit,
-        row: row,
-      },
-    ]);
-  };
-
-  const clickDelete = (id) => {
-    console.log("editing", id);
-  };
-
-  const cancelHandler = (id) => {
-    console.log("cancelHandler!", id);
-
-    setCurrentAction([...currentAction.filter((item) => item.row.id !== id)]);
-  };
-
-  const saveDataHandler = (isCreate, row) => {
-    console.log({ isCreate });
-    console.log({ row });
-  };
+const Cards: NextPage = (props) => {
 
   return (
-    <>
-      <Box>
-        {dataCombinationType && (
-          <>
-            <EnhancedTable
-              columns={Object.keys(dataCombinationType[0] || referenceField)}
-              data={dataCombinationType || referenceField}
-              title={"Quantas cartas serão tiradas para o jogo"}
-              actions={{
-                edit: {
-                  callback: (row) => clickEdit(row),
-                },
-                view: {
-                  callback: (row) => clickView(row),
-                },
-                delete: {
-                  callback: (id) => clickDelete(id),
-                },
-                create: {
-                  callback: () => clickCreate(),
-                },
-              }}
-            />
-          </>
-        )}
-        <Button
-          onClick={() => clickGetAll()}
-          variant="contained"
-          color="primary"
-          type="button"
-        >
-          <Typography variant="button">Log Data</Typography>
-        </Button>
+    <Editor 
+      referenceField={referenceField}
+      mainKey={mainKey}
+      subject={subject}
+      title={title}
+      helperKeys={foreignData}
+    />
+  )
+}
 
-        {currentAction
-          .filter((item) =>
-            [CurrentAction.edit, CurrentAction.create].includes(item.status)
-          )
-          .map((instance) => {
-            return (
-              <Editor
-                key={instance.row.id}
-                instance={instance}
-                fields={fieldsCategorizer(referenceField)}
-                stateFields={
-                  instance.status === CurrentAction.edit
-                    ? instance.row
-                    : referenceField
-                }
-                cancel={(id) => cancelHandler(id)}
-                send={(isCreate, row) => saveDataHandler(isCreate, row)}
-              />
-            );
-          })}
-      </Box>
-      <Snackbar
-        open={alertCreate}
-        autoHideDuration={4000}
-        onClose={() => setAlertCreate(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert severity="warning" onClose={() => setAlertCreate(false)}>
-          <AlertTitle>Já está criando</AlertTitle>
-          Você já está criando conteúdo. É permitido criar mais de um por vez,
-          porém faça com atenção para evitar problemas.
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={alertEdit}
-        autoHideDuration={4000}
-        onClose={() => setAlertEdit(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert severity="error" onClose={() => setAlertEdit(false)}>
-          <AlertTitle>Já em edição</AlertTitle>
-          Você já está editando este conteúdo. Procure na lista de edições
-          criações o respectivo registro.
-        </Alert>
-      </Snackbar>
-    </>
-  );
-};
-
-export default CombinationType;
+export default Cards

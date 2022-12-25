@@ -248,11 +248,13 @@ interface EnhancedTableProps {
   actionCreate: () => void
   actionChangeDense: () => void
   actions: IActions
+  helperKeysData: any
+  helperKeys: any[]
 }
 
 
 
-export default function EnhancedTable({columns = [], data = [], title, actions}: EnhancedTableProps) {
+export default function EnhancedTable({columns = [], data = [], title, actions, helperKeysData, helperKeys}: EnhancedTableProps) {
   const [order, setOrder] = React.useState<Order>('asc');
   const [orderBy, setOrderBy] = React.useState(columns[0]);
   const [selected, setSelected] = React.useState<readonly string[]>([]);
@@ -310,6 +312,13 @@ export default function EnhancedTable({columns = [], data = [], title, actions}:
   const handleChangeDense = () => {
     toggleDensity();
   };
+
+  const getRow = (item, column) => {
+    const reqReplaceIndex = helperKeys.findIndex(key => key.replaceKeyReq === column)
+    if (reqReplaceIndex === -1) return item
+    const dataReplace = helperKeysData[reqReplaceIndex].data.find(elem => elem.id === item)
+    return dataReplace[helperKeys[reqReplaceIndex].replaceKeyRes] 
+  }
 
   const isSelected = (name: string) => selected.indexOf(name) !== -1;
 
@@ -374,7 +383,7 @@ export default function EnhancedTable({columns = [], data = [], title, actions}:
                         {row.id}
                       </TableCell>
                       {columns.filter(column => column !== 'id').map(column => (
-                        <TableCell key={column} align="right">{row[column]}</TableCell>
+                        <TableCell key={column} align="right">{getRow(row[column], column)}</TableCell>
                       ))}
 
                       {
