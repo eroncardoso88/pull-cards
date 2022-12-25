@@ -2,13 +2,12 @@ import { Box, Paper, Typography, Grid, Button, Modal, Select, MenuItem, FormCont
 import { FunctionComponent, useState, useCallback } from "react";
 import TextField from "@mui/material/TextField";
 import { translates } from "@/utils/translates";
-import { isUuid } from "uuidv4";
 import { modalStyle } from "./index";
 
 interface IEditorList {
   instance: {
     row: any;
-    status: "Edit" | "Create";
+  status: "edit" | "create";
   };
   fields: any[];
   stateFields: any;
@@ -34,7 +33,7 @@ export const EditorList: FunctionComponent<IEditorList> = ({
   const [isDirty, setIsDirty] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
+  const [multiSelectValue, setMultiSelectValue] = useState([])
   const changeValueHandler = useCallback(
     (value, field) => {
       const newValue = { ...fieldValues };
@@ -51,9 +50,16 @@ export const EditorList: FunctionComponent<IEditorList> = ({
     const reqReplaceIndex = helperKeys.findIndex(key => key.shouldDownload === nameField ||  key.replaceKeyReq === nameField )
     console.log(`reqReplaceIndex `, reqReplaceIndex)
     if (reqReplaceIndex === -1) return []
-    const dataReplace = helperKeysData[reqReplaceIndex].data.map(elem => ({id: elem.id.toString(), description: elem[helperKeys[reqReplaceIndex].replaceKeyRes]}))
+    console.log(`elem `, helperKeysData[reqReplaceIndex])
+    const dataReplace = helperKeysData[reqReplaceIndex].data.map(elem => ({id: elem.id.toString(), description: elem[helperKeys[reqReplaceIndex].replaceKeyRes], extraValue: elem[helperKeys[reqReplaceIndex].extraValue] || ""}))
     return dataReplace
     // return dataReplace[helperKeys[reqReplaceIndex].replaceKeyRes] 
+  }
+
+  const getFieldIsMultiple = (nameField) => {
+    const reqReplaceIndex = helperKeys.findIndex(key => key.shouldDownload === nameField ||  key.replaceKeyReq === nameField )
+    if (reqReplaceIndex === -1) return false;
+    return helperKeys[reqReplaceIndex].isMultiSelect;
   }
 
 
@@ -71,7 +77,7 @@ export const EditorList: FunctionComponent<IEditorList> = ({
         elevation={3}
         onClick={() => console.log(fieldValues, stateFields, instance)}
       >
-        {!isUuid(instance.row.id) ? (
+      {!(instance.status === "create") ? (
           <Typography variant="h6">
             Editando o campo de id: {instance.row.id}
           </Typography>
@@ -80,7 +86,7 @@ export const EditorList: FunctionComponent<IEditorList> = ({
         )}
         <Grid container spacing={2} sx={{ mt: { xs: 1, sm: 2 } }}>
           {fields
-            .filter((field) => field.nameField !== "id")
+            .filter((field) => field.nameField !== "id" && field.nameField !== "createdAt")
             .filter((field) => field.type === "smallText")
             .map((field) => (
               <Grid item key={field.nameField} xs={12} sm={4}>
@@ -105,14 +111,24 @@ export const EditorList: FunctionComponent<IEditorList> = ({
                   <Select
                     label={translates(field.nameField)}
                     variant="standard"
+                    multiple={getFieldIsMultiple(field.nameField)}
                     sx={{ width: "100%" }}
-                    value={fieldValues[field.nameField]}
+                    value={getFieldIsMultiple(field.nameField) ? multiSelectValue : fieldValues[field.nameField]}
                     onChange={(evt) =>
-                      changeValueHandler(evt.target.value, field.nameField)
+                      getFieldIsMultiple(field.nameField) ? (
+                        setMultiSelectValue(evt.target.value),
+                        changeValueHandler(evt.target.value.toString(), field.nameField)
+                      ) : (
+                        changeValueHandler(evt.target.value, field.nameField)
+                      )
                     }
                   >
                     {getFieldOptions(field.nameField, fields).map(item => (
-                      <MenuItem value={item.id} key={item.id}>{item.description}</MenuItem>
+                      item.extraValue ? (
+                        <MenuItem value={item.id} key={item.id}>[{item.description}|{item.extraValue}]</MenuItem>
+                        ) : (
+                          <MenuItem value={item.id} key={item.id}>{item.description}</MenuItem>
+                      )
                     ))}
 
                   </Select>
@@ -126,10 +142,10 @@ export const EditorList: FunctionComponent<IEditorList> = ({
               <Grid item key={field.nameField} xs={12} sm={12}>
                 {<TextField
                   label={translates(field.nameField)}
-                  variant="standard"
                   sx={{ width: "100%" }}
                   multiline
                   maxRows={6}
+                  minRows={3}
                   value={fieldValues[field.fieldName]}
                 />}
               </Grid>
@@ -236,7 +252,7 @@ export const EditorList: FunctionComponent<IEditorList> = ({
               variant="contained"
               color="success"
               onClick={() => {
-                send(isUuid(instance.row.id), fieldValues);
+              send(instance.status === "create", fieldValues);
                 setShowConfirmModal(false);
               }}
             >

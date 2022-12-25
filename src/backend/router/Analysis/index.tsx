@@ -22,6 +22,7 @@ export const analysisRouter = createRouter()
     async resolve({ctx, input}) {
       const { 
         combinationInfoId,
+        authorId,
         textOne,
         textTwo,
         textThree,
@@ -31,7 +32,46 @@ export const analysisRouter = createRouter()
         const analysis = await prisma.analysis.create({
           data: {
             id: uuid(),
-            authorId: 'temp',
+            authorId,
+            createdAt: new Date(),
+            combinationInfoId,
+            textOne,
+            textTwo,
+            textThree,
+            textFour,
+          }
+        })
+      } catch (e) {
+        if (e instanceof PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            throw new trpc.TRPCError({
+              code: 'CONFLICT',
+              
+            })
+          }
+        }
+      }
+    }
+  })
+  .mutation('edit-analysis', {
+    input: createAnalysisSchema,
+    async resolve({ctx, input}) {
+      const { 
+        id,
+        authorId,
+        combinationInfoId,
+        textOne,
+        textTwo,
+        textThree,
+        textFour,
+       } = input
+      try {
+        const analysis = await prisma.analysis.update({
+          where: {
+            id: id
+          },
+          data: {
+            authorId,
             createdAt: new Date(),
             combinationInfoId,
             textOne,
@@ -54,9 +94,11 @@ export const analysisRouter = createRouter()
   })
   .query('list-analysis', {
     async resolve (): Promise<Analysis[]> {
-      const allAnalysisFound = await prisma.analysis.findMany(
-
-      )
+      const allAnalysisFound = await prisma.analysis.findMany({
+        where: {
+          active: true,
+        },
+      })
 
       // if (allUsersFound.length === 0) {
       //   throw new Error('There are no users!')

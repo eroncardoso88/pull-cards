@@ -8,10 +8,11 @@ export const translates = (value: string) => {
   if (value === "authorId") return "Autor (id)"
   if (value === "createdAt") return "Data de criação"
   if (value === "combinationInfoId") return "Referente ao jogo (id)"
+  if (value === "combinationId") return "De qual tipo de jogo"
   if (value === "deck" || value === "deckId") return "Pertencente ao Deck"
   if (value === "textOne") return "Texto 1"
   if (value === "textTwo") return "Texto 2"
   if (value === "textThree") return "Texto 3"
   if (value === "textFour") return "Texto 4"
-  if (value === "cardSequenceEnum") return "Código da sequência"
+  if (value === "cardSequenceList") return "Código da sequência"
 }

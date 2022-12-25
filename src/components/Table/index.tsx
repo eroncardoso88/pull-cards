@@ -29,6 +29,10 @@ import { Visibility } from '@mui/icons-material';
 export interface BaseRecord {
   id: string;
  }
+
+ export const multipleValueFields = [
+  "cardSequenceList"
+ ]
 interface IActions {
   edit?: {
     callback: (row: any) => void
@@ -313,10 +317,23 @@ export default function EnhancedTable({columns = [], data = [], title, actions, 
     toggleDensity();
   };
 
+  const getMultipleValueRow = (item, column) => {
+    return item.split(',').map(item => {
+      const reqReplaceIndex = helperKeys.findIndex(key => key.replaceKeyReq === column)
+      const dataReplace = helperKeysData[reqReplaceIndex]?.data.find(elem => elem.id === item)
+      return `[${dataReplace.name}|${dataReplace.info}]`
+    })
+  }
+
   const getRow = (item, column) => {
+    if (multipleValueFields.includes(column)) return getMultipleValueRow(item, column);
+    console.log(`item `, item)
+    console.log(`column `, column)
     const reqReplaceIndex = helperKeys.findIndex(key => key.replaceKeyReq === column)
+    console.log(`reqReplaceIndex `, reqReplaceIndex)
+    console.log(`helperKeys `, helperKeys)
     if (reqReplaceIndex === -1) return item
-    const dataReplace = helperKeysData[reqReplaceIndex].data.find(elem => elem.id === item)
+    const dataReplace = helperKeysData[reqReplaceIndex]?.data.find(elem => elem.id === item)
     return dataReplace[helperKeys[reqReplaceIndex].replaceKeyRes] 
   }
 
@@ -327,7 +344,7 @@ export default function EnhancedTable({columns = [], data = [], title, actions, 
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
+    <Box>
       <Paper sx={{ width: '100%', mb: 2, padding: {xs: "0 2px", sm: "0 10px"}, opacity: 0.9, overflowX: "auto", maxWidth: '97.5vw' }} elevation={7}>
         <EnhancedTableToolbar numSelected={selected.length} title={title}/>
         <TableContainer sx={{

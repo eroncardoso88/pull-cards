@@ -6,10 +6,12 @@ import * as trpc from '@trpc/server';
 import { CombinationSubject } from "@prisma/client";
 
 export const createCombinationSubjectSchema = z.object({
-  id: z.number(),
+  id: z.any(),
   description: z.string(),
-  deckName: z.enum(['MARSEILLE'])
 })
+
+export const disableSchema = z.any();
+
 
 export const combinationSubjectRouter = createRouter()
   .mutation('create-combination-subject', {
@@ -17,13 +19,12 @@ export const combinationSubjectRouter = createRouter()
     async resolve({ctx, input}) {
       const { 
         description,
-        deckName
        } = input
       try {
-        const user = await prisma.combinationSubject.create({
+        await prisma.combinationSubject.create({
           data: {
             description,
-            deckName
+            active: true
           }
         })
       } catch (e) {
@@ -31,7 +32,61 @@ export const combinationSubjectRouter = createRouter()
           if (e.code === 'P2002') {
             throw new trpc.TRPCError({
               code: 'CONFLICT',
-              
+            })
+          }
+          throw new trpc.TRPCError({
+            code: 'CONFLICT',
+          })
+        }
+        throw e
+      }
+    }
+  })
+  .mutation('edit-combination-subject', {
+    input: createCombinationSubjectSchema,
+    async resolve({ctx, input}) {
+      const { 
+        id,
+        description,
+       } = input
+      try {
+        await prisma.combinationSubject.update({
+          where: {
+            id: id
+          },
+          data: {
+            description,
+          }
+        })
+      } catch (e) {
+        if (e instanceof PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            throw new trpc.TRPCError({
+              code: 'CONFLICT',
+            })
+          }
+        }
+      }
+    }
+  })
+  .mutation('disableone-combination-subject', {
+    input: disableSchema,
+    async resolve({ctx, input}) {
+      const id = input
+      try {
+        await prisma.combinationSubject.update({
+          where: {
+            id: id
+          },
+          data: {
+            active: false
+          }
+        })
+      } catch (e) {
+        if (e instanceof PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            throw new trpc.TRPCError({
+              code: 'CONFLICT',
             })
           }
         }
@@ -40,9 +95,11 @@ export const combinationSubjectRouter = createRouter()
   })
   .query('list-combination-subject', {
     async resolve (): Promise<CombinationSubject[]> {
-      const allCombinationSubjectsFound = await prisma.combinationSubject.findMany(
-
-      )
+      const allCombinationSubjectsFound = await prisma.combinationSubject.findMany({
+        where: {
+          active: true,
+        },
+      })
 
       // if (allUsersFound.length === 0) {
       //   throw new Error('There are no users!')

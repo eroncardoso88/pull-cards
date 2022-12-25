@@ -26,7 +26,7 @@ export const foreignData: IForgeignData[] = [
   },
 ]
 
-const Cards: NextPage = (props) => {
+const CombinationType: NextPage = (props) => {
 
   return (
     <Editor 
@@ -39,4 +39,4 @@ const Cards: NextPage = (props) => {
   )
 }
 
-export default Cards
+export default CombinationType

@@ -54,47 +54,42 @@ model User {
 }
 
 model CombinationType {
-  id                 Int                  @id @default(autoincrement())
-  description        String
-  active             Boolean              @default(true)
-  Deck               Deck                 @relation(fields: [deckId], references: [id])
-  deckId             Int
-  Combination        Combination[]
-  CombinationSubject CombinationSubject[]
+  id          Int           @id @default(autoincrement())
+  description String
+  active      Boolean       @default(true)
+  Deck        Deck          @relation(fields: [deckId], references: [id])
+  deckId      Int
+  Combination Combination[]
 
   @@index([deckId])
 }
 
 model CombinationSubject {
-  id                Int             @id @default(autoincrement())
-  description       String
-  CombinationType   CombinationType @relation(fields: [combinationTypeId], references: [id])
-  combinationTypeId Int
-  active            Boolean
-  Combination       Combination[]
-
-  @@index([combinationTypeId])
+  id          Int           @id @default(autoincrement())
+  description String
+  active      Boolean
+  Combination Combination[]
 }
 
 model Combination {
   id                   String             @id @default(uuid())
   name                 String             @unique
   active               Boolean            @default(true)
-  combinationType      CombinationType    @relation(fields: [combinationTypeId], references: [id])
-  combinationTypeId    Int
-  combinationSubject   CombinationSubject @relation(fields: [combinationSubjectId], references: [id])
+  CombinationSubject   CombinationSubject @relation(fields: [combinationSubjectId], references: [id])
   combinationSubjectId Int
+  CombinationType      CombinationType @relation(fields: [combinationTypeId], references: [id])
+  combinationTypeId    Int
   CombinationInfo      CombinationInfo[]
 
-  @@index([combinationTypeId])
   @@index([combinationSubjectId])
+  @@index([combinationTypeId])
 }
 
 model CombinationInfo {
   id               String      @id @default(uuid())
-  cardSequenceEnum String      @unique
+  cardSequenceList String      @unique
   active           Boolean     @default(true)
-  combination      Combination @relation(fields: [combinationId], references: [id])
+  Combination      Combination @relation(fields: [combinationId], references: [id])
   combinationId    String
   Analysis         Analysis?
   Game             Game[]

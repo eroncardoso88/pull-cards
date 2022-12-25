@@ -30,10 +30,10 @@ export const applicationRoutes = [
     description: "Criação das possibilidades de quantidades de cartas tiradas para um jogo possível"
   },
   {
-    label: 'Jogos possíveis',
+    label: 'Jogos possíveis (tipo de jogo)',
     icon: 'AltRouteIcon',
     route: '/combination',
-    description: "Jogos possíveis a serem analisados. Casamento de pergunta X quantidade de cartas para a resposta."
+    description: "Jogos possíveis (tipo de jogo) a serem analisados. Casamento de pergunta X quantidade de cartas para a resposta."
   },
   {
     label: 'Jogo',

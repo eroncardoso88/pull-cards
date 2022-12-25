@@ -6,8 +6,8 @@ import * as trpc from '@trpc/server';
 import { CombinationInfo } from "@prisma/client";
 
 export const createCombinationInfoSchema = z.object({
-  id: z.number(),
-  cardSequenceEnum: z.string(),
+  id: z.string(),
+  cardSequenceList: z.string(),
   combinationId: z.string(),
 })
 
@@ -16,13 +16,13 @@ export const combinationInfoRouter = createRouter()
     input: createCombinationInfoSchema,
     async resolve({ctx, input}) {
       const { 
-        cardSequenceEnum,
+        cardSequenceList,
         combinationId
        } = input
       try {
         const combinationInfo = await prisma.combinationInfo.create({
           data: {
-            cardSequenceEnum,
+            cardSequenceList,
             combinationId
           }
         })
@@ -40,9 +40,12 @@ export const combinationInfoRouter = createRouter()
   })
   .query('list-combination-info', {
     async resolve (): Promise<CombinationInfo[]> {
-      const allCombinationInfoFound = await prisma.combinationInfo.findMany(
+      const allCombinationInfoFound = await prisma.combinationInfo.findMany({
+        where: {
+          active: true,
+        },
+      })
 
-      )
 
       // if (allUsersFound.length === 0) {
       //   throw new Error('There are no users!')

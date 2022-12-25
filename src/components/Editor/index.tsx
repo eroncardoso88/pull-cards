@@ -180,7 +180,7 @@ const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, t
 
   return (
     <>
-      <Box>
+      <Box sx={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
         {dataEditor && (
           <>
             <EnhancedTable
@@ -206,15 +206,6 @@ const Editor: FunctionComponent<IEditor> = ({subject, referenceField, mainKey, t
             />
           </>
         )}
-        <Button
-          onClick={() => clickGetAll()}
-          variant="contained"
-          color="primary"
-          type="button"
-        >
-          <Typography variant="button">Log Data</Typography>
-        </Button>
-
         {currentAction
           .filter((item) =>
             [CurrentAction.edit, CurrentAction.create].includes(item.status)
