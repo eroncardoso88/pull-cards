@@ -38,6 +38,64 @@ export const combinationInfoRouter = createRouter()
       }
     }
   })
+  .mutation('edit-combination-info', {
+    input: createCombinationInfoSchema,
+    async resolve({ctx, input}) {
+      const { 
+        id,
+        cardSequenceList,
+        combinationId
+       } = input
+      try {
+        const combinationInfo = await prisma.combinationInfo.update({
+          where: {
+            id: id
+          },
+          data: {
+            cardSequenceList,
+            combinationId
+          }
+        })
+      } catch (e) {
+        if (e instanceof PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            throw new trpc.TRPCError({
+              code: 'CONFLICT',
+              
+            })
+          }
+        }
+      }
+    }
+  })
+  .mutation('disableone-combination-info', {
+    input: createCombinationInfoSchema,
+    async resolve({ctx, input}) {
+      const { 
+        id,
+        cardSequenceList,
+        combinationId
+       } = input
+      try {
+        const combinationInfo = await prisma.combinationInfo.update({
+          where: {
+            id: id
+          },
+          data: {
+            active: false
+          }
+        })
+      } catch (e) {
+        if (e instanceof PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            throw new trpc.TRPCError({
+              code: 'CONFLICT',
+            })
+          }
+        }
+      }
+    }
+  })
   .query('list-combination-info', {
     async resolve (): Promise<CombinationInfo[]> {
       const allCombinationInfoFound = await prisma.combinationInfo.findMany({
